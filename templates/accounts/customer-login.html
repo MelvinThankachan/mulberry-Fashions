@@ -9,16 +9,14 @@
             <div class="col-md-6 col-md-offset-3">
             <div class="block text-center">
                 <a class="logo" href="{% url "home" %}">
-                <img style="width:300px" src="{% static "images/logo.png" %}" alt="logo">
+                <img style="width:150px" src="{% static "images/logo.png" %}" alt="logo">
                 </a>
-                <h2 class="text-center">Welcome Back</h2>
+                <h2 class="text-center">Welcome</h2>
                 <form method="post" class="text-left clearfix" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for message in messages %}
                     {% if message.tags == "success" %}
-                        <div class="alert alert-success alert-common alert-solid" role="alert">
-                            <i class="tf-ion-thumbsup"></i> {{ message }}
-                        </div>
+                        <div class="alert alert-success alert-common" role="alert"><i class="tf-ion-thumbsup"></i><span></span>{{ message }}</div>
                     {% endif %}
                 {% endfor %}
                 <div class="form-group">
@@ -29,9 +27,7 @@
                 </div>
                 {% for message in messages %}
                     {% if message.tags == "error" %}
-                        <div class="alert alert-danger alert-common alert-solid" role="alert">
-                            <i class="tf-ion-close-circled"></i> {{ message }}
-                        </div>
+                        <div class="alert alert-danger alert-common" role="alert"><i class="tf-ion-close-circled"></i><span></span>{{ message }}</div>
                     {% endif %}
                 {% endfor %}
                 <div class="text-center">
@@ -39,6 +35,7 @@
                 </div>
                 </form>
                 <p class="mt-20">New in this site ?<a href="{% url "customer_signup" %}"> Create New Account</a></p>
+                <p><a href="forget-password.html"> Forgot your password?</a></p>
             </div>
             </div>
         </div>
