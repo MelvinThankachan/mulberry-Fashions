@@ -28,6 +28,8 @@ class AccountManager(BaseUserManager):
         )
         user.is_admin = True
         user.is_active = True
+        user.is_vendor = True
+        user.is_customer = True
         user.is_staff = True
         user.is_superadmin = True
         user.save(using=self.db)
@@ -42,8 +44,10 @@ class Account(AbstractBaseUser):
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    is_vendor = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
     is_superadmin = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"

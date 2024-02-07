@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from product.models import Product, Category
 
 
@@ -9,7 +9,6 @@ def home(request):
     categories = Category.objects.all()[:4]
     context = {"products": products, "categories": categories, "title": title}
     return render(request, "home/home.html", context)
-
 
 def shop(request):
     title = "Shop"
@@ -22,5 +21,5 @@ def shop(request):
 def product_page(request, pk):
     product = Product.objects.filter(pk=pk)
     title = product.name
-    context = {"product": product}
+    context = {"product": product, 'title': title}
     return render(request, "home/product-details.html", context)

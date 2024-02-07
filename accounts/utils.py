@@ -4,13 +4,14 @@ from django.conf import settings
 from django.core.mail import send_mail
 from . models import Account
 
-
 def send_otp(request):
-    otp_time = 60  # time to enter otp in seconds
-    totp = pyotp.TOTP(pyotp.random_base32(), interval=otp_time)
+    otp_interval = 60  # time to enter otp in seconds
+    secret_key = pyotp.random_base32()
+    totp = pyotp.TOTP(secret_key, interval=otp_interval)
     otp = totp.now()
-    request.session["otp_secret_key"] = totp.secret
-    valid_time = datetime.now() + timedelta(seconds=otp_time)
+    request.session["otp_secret_key"] = secret_key
+    request.session["otp_interval"] = otp_interval
+    valid_time = datetime.now() + timedelta(seconds=otp_interval)
     request.session["otp_valid_till"] = valid_time.isoformat()
 
     # Sending verification email
@@ -20,17 +21,23 @@ def send_otp(request):
     subject = "OTP Verification - mulberry Fashions"
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
-    message = f"""Dear {name},
+    message = f"""
+Dear {name},
 
-Thank you for registering with Mulberry Fashions!
+Welcome to Mulberry Fashions! We're thrilled to have you as part of our community.
 
-Your OTP (One-Time Password) for verification is: {otp}
+To complete your registration and unlock all the exciting features, we need to verify your email address. Please use the OTP (One-Time Password) provided below:
 
-Please enter this OTP on the verification page to complete the registration process.
+OTP: {otp}
 
-If you didn't request this OTP, please ignore this email.
+Please enter this OTP on the verification page to finalize your registration. If you didn't request this OTP, please disregard this email.
 
-Thanks,
-Mulberry Fashions Team"""
+We're here to make your fashion journey extraordinary. If you have any questions or need assistance, feel free to reach out to our support team.
+
+
+Best regards,
+The mulberry Fashions Team
+
+[Note: This is an automated email. Please do not reply.]"""
     
     send_mail(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list)

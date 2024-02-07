@@ -22,7 +22,7 @@ class AccountAdmin(UserAdmin):
     fieldsets = ()
 
 
-class CustomerAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = (
         "email",
         "first_name",
@@ -35,5 +35,5 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Account, AccountAdmin)
-admin.site.register(Customer, CustomerAdmin)
-admin.site.register(Vendor)
+admin.site.register(Customer, UserAdmin)
+admin.site.register(Vendor, UserAdmin)

@@ -1,6 +1,5 @@
-{% extends "base.html" %} {% block content %} 
-{% include "includes/navigation.html" %} 
-{% include "includes/page-header.html" %}
+{% extends "base.html" %} {% block content %} {% include
+"includes/navigation.html" %} {% include "includes/page-header.html" %}
 
 <section class="products section">
   <div class="container">
@@ -22,13 +21,14 @@
           <form method="post" action="#">
             <select class="form-control">
               <option>All Categories</option>
-                {% for category in categories %}
-                    <option>{{category.name}}</option>
-                {% endfor %}
+              {% for category in categories %}
+              <option>{{category.name}}</option>
+              {% endfor %}
             </select>
           </form>
         </div>
-        {% comment %} <div class="widget product-category">
+        {% comment %}
+        <div class="widget product-category">
           <h4 class="widget-title">Categories</h4>
           <div
             class="panel-group commonAccordion"
@@ -130,7 +130,8 @@
               </div>
             </div>
           </div>
-        </div> {% endcomment %}
+        </div>
+        {% endcomment %}
       </div>
       <div class="col-md-9">
         <div class="row">
