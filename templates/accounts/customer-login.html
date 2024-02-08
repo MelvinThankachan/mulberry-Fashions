@@ -20,10 +20,10 @@
                     {% endif %}
                 {% endfor %}
                 <div class="form-group">
-                    <input id="email" required type="email" class="form-control" placeholder="Email" name="email">
+                    <input required id="email" type="email" class="form-control" placeholder="Email" name="email">
                 </div>
                 <div class="form-group">
-                    <input required type="password" class="form-control" placeholder="Password" name="password">
+                    <input required type="password" id="password" class="form-control" placeholder="Password" name="password" pattern="^.{8,}$" oninvalid="this.setCustomValidity('Password must be at least 8 characters long')">
                 </div>
                 {% for message in messages %}
                     {% if message.tags == "error" %}

@@ -76,6 +76,23 @@ Essential Scripts
 <!-- Main Js File -->
 <script src="{% static "js/script.js" %}"></script>
 
+<!-- Additional scripts -->
+<script>
+
+// Get all input elements
+var inputs = document.querySelectorAll('input');
+
+// Loop through each input element
+inputs.forEach(function(input) {
+    // Add event listener to clear custom validity on input
+    input.addEventListener('input', function(event) {
+        event.target.setCustomValidity('');
+    });
+});
+
+</script>
+
+
 {% block extra_scripts %}
 
 {% endblock extra_scripts %}

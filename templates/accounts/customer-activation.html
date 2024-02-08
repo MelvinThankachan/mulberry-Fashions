@@ -21,7 +21,7 @@
                 {% endfor %}
                 <p class="">Please check your email for the OTP.</p>
                 <div class="form-group">
-                    <input pattern="^[0-9]{6}$" id="otp" required maxlength="6" type="text" class="form-control" placeholder="Enter OTP here" name="otp">
+                    <input pattern="^[0-9]{6}$" oninvalid="this.setCustomValidity('Enter a 6-digit OTP')" id="otp" required maxlength="6" type="text" class="form-control" placeholder="Enter OTP here" name="otp">
                 </div>
                 {% for message in messages %}
                     {% if message.tags == "error" %}
@@ -58,14 +58,6 @@
         clearInterval(downloadTimer);
     },1000);
 
-    // script to change the message for invalid entry
-    var input = document.getElementById('otp');
-    var input = document.getElementById('otp');
-    input.oninput = function(event) {
-        if (event.target.validity.valid) {
-            event.target.setCustomValidity('');
-        }
-    }
-    </script>
+</script>
 
 {% endblock extra_scripts %}

@@ -22,7 +22,7 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-              <input pattern="^[0-9]{6}$" id="otp" name="otp" maxlength="6" class="form-control mb-3" type="text" placeholder="Enter OTP here" required>
+              <input pattern="^[0-9]{6}$" oninvalid="this.setCustomValidity('Enter a 6-digit OTP')" id="otp" name="otp" maxlength="6" class="form-control mb-3" type="text" placeholder="Enter OTP here" required>
                 {% for message in messages %}
                     {% if message.tags == "error" %}
                         <div class="alert alert-danger" role="alert">
@@ -60,14 +60,6 @@
     if(timeleft <= 0)
         clearInterval(downloadTimer);
     },1000);
-
-    // script to change the message for invalid entry
-    var input = document.getElementById('otp');
-    input.oninput = function(event) {
-        if (event.target.validity.valid) {
-            event.target.setCustomValidity('');
-        }
-}
 
 </script>
 

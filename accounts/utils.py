@@ -1,17 +1,17 @@
-import pyotp
+import pyotp, random
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.mail import send_mail
 from . models import Account
 
 def send_otp(request):
-    otp_interval = 60  # time to enter otp in seconds
+    otp_counter = random.randint(0, 999999)  # creating a random counter
     secret_key = pyotp.random_base32()
-    totp = pyotp.TOTP(secret_key, interval=otp_interval)
-    otp = totp.now()
+    hotp = pyotp.HOTP(secret_key)
+    otp = hotp.at(otp_counter)
     request.session["otp_secret_key"] = secret_key
-    request.session["otp_interval"] = otp_interval
-    valid_time = datetime.now() + timedelta(seconds=otp_interval)
+    request.session["otp_counter"] = otp_counter
+    valid_time = datetime.now() + timedelta(seconds=otp_counter)
     request.session["otp_valid_till"] = valid_time.isoformat()
 
     # Sending verification email

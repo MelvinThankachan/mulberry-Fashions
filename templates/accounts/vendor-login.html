@@ -22,7 +22,7 @@
                     {% endif %}
                 {% endfor %}
               <input name="email" class="form-control mb-3" id="email" type="email" placeholder="Email" required>
-              <input name="password" class="form-control mb-3" type="password" placeholder="Password" required>
+              <input name="password" id="password" class="form-control mb-3" type="password" placeholder="Password" pattern="^.{8,}$" oninvalid="this.setCustomValidity('Password must be at least 8 characters long')" required>
                 {% for message in messages %}
                     {% if message.tags == "error" %}
                         <div class="alert alert-danger" role="alert">

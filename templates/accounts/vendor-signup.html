@@ -31,8 +31,8 @@
               <input name="first_name" class="form-control mb-3" type="text" placeholder="First Name*" required>
               <input name="last_name" class="form-control mb-3" type="text" placeholder="Last Name*" required>
               <input name="email" class="form-control mb-3" type="email" placeholder="Email*" required>
-              <input name="password" class="form-control mb-3" type="password" placeholder="Password*" required>
-              <input name="password2" class="form-control mb-3" type="password" placeholder="Confirm Password*" required>
+              <input name="password" id="password" class="form-control mb-3" type="password" placeholder="Password*" pattern="^.{8,}$" oninvalid="this.setCustomValidity('Password must be at least 8 characters long')" required>
+              <input name="password2" id="password" class="form-control mb-3" type="password" placeholder="Confirm Password*" pattern="^.{8,}$" oninvalid="this.setCustomValidity('Password must be at least 8 characters long')" required>
               <div class="loggedin-forgot d-inline-flex my-3">
                 <input required type="checkbox" id="registering" class="mt-1">
                 <label for="registering" class="px-2">By registering, you accept our <a class="text-primary font-weight-bold" href="terms-condition.html">Terms & Conditions</a></label>

@@ -80,7 +80,7 @@ def customer_login(request):
             request.session["target_page"] = "customer_login"
             request.session["account_type"] = "customer"
 
-            error_message = "Your email is not verified. Please verify your email to login."
+            error_message = "Please verify your email to login."
             messages.error(request, error_message)
             return redirect("otp_view")
 
@@ -177,7 +177,7 @@ def vendor_login(request):
             request.session["target_page"] = "vendor_login"
             request.session["account_type"] = "vendor"
 
-            error_message = "Your email is not verified. Please verify your email to login."
+            error_message = "Please verify your email to login."
             messages.error(request, error_message)
             return redirect("otp_view")
 
@@ -211,7 +211,7 @@ def otp_view(request):
 def customer_activation(request):
     email = request.session.get("email")
     otp_secret_key = request.session.get("otp_secret_key")
-    otp_interval = request.session.get("otp_interval")
+    otp_counter = request.session.get("otp_counter")
     otp_valid_till = datetime.fromisoformat(request.session.get("otp_valid_till"))
     time_left = round((otp_valid_till - datetime.now()).total_seconds())
 
@@ -220,8 +220,8 @@ def customer_activation(request):
 
         if otp_secret_key and otp_valid_till is not None:
             if otp_valid_till > datetime.now():
-                totp = pyotp.TOTP(otp_secret_key, interval=int(otp_interval))
-                if totp.verify(otp):
+                hotp = pyotp.HOTP(otp_secret_key)
+                if hotp.verify(otp, otp_counter):
                     # Activating account
                     account = Account.objects.get(email=email)
                     account.is_active = True
