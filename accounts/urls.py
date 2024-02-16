@@ -12,6 +12,10 @@ urlpatterns = [
     path('signup/', views.vendor_signup, name="vendor_signup"),
     path("vendor-logout/", views.vendor_logout, name="vendor_logout"),
 
+    # Custom admin account urls
+    path('admin-login/', views.admin_login, name="admin_login"),
+    path("admin-logout/", views.admin_logout, name="admin_logout"),
+
     # Account activation urls
     path("customer-activation/", views.customer_activation, name="customer_activation"),
     path("otp-view/", views.otp_view, name="otp_view"),

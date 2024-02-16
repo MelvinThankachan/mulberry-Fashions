@@ -1,0 +1,45 @@
+{% extends "muladmin/admin-base.html" %}
+
+{% block content %}
+
+<table id="hoverable-data-table" class="table table-hover nowrap" style="width:100%">
+    <thead>
+     <tr>
+      <th>Email</th>
+      <th>First name</th>
+      <th>Last name</th>
+      <th>Last login</th>
+      <th class="text-center">Active status</th>
+      <th class="text-center">Approve/Ban</th>
+     </tr>
+    </thead>
+  
+    <tbody>
+        {% for vendor in vendors %}
+        <tr>
+           <td><a href="">{{ vendor.email }}</a></td>
+           <td>{{ vendor.first_name }}</td>
+           <td>{{ vendor.last_name }}</td>
+           <td>{{ vendor.last_login }}</td>
+           <td class="text-center">
+            {% if vendor.is_active %}
+                <span class="mdi mdi-check-circle text-success"></span>
+            {% else %}
+                <span class="mdi mdi-close-circle text-danger"></span>
+            {% endif %}
+            </td>
+            <td class="text-center">
+                {% if vendor.approved %}
+                    <button class="btn-block btn-outline-danger">Ban</button>
+                {% else %}
+                    <button class="btn-block btn-outline-primary"></i>Approve</button>
+                {% endif %}
+           </td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+   </table>
+
+
+{% endblock content %}

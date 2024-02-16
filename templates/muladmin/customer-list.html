@@ -1,0 +1,38 @@
+{% extends "muladmin/admin-base.html" %}
+
+{% block content %}
+
+<table id="hoverable-data-table" class="table table-hover nowrap" style="width:100%">
+    <thead>
+     <tr>
+      <th>Email</th>
+      <th>First name</th>
+      <th>Last name</th>
+      <th>Last login</th>
+      <th class="text-center">Active status</th>
+     </tr>
+    </thead>
+  
+    <tbody>
+        {% for customer in customers %}
+        
+        <tr>
+           <td><a href="">{{ customer.email }}</a></td>
+           <td>{{ customer.first_name }}</td>
+           <td>{{ customer.last_name }}</td>
+           <td>{{ customer.last_login }}</td>
+           <td class="text-center">
+            {% if customer.is_active %}
+                <span class="mdi mdi-check-circle text-success"></span>
+            {% else %}
+                <span class="mdi mdi-close-circle text-danger"></span>
+            {% endif %}
+           </td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+   </table>
+
+
+{% endblock content %}

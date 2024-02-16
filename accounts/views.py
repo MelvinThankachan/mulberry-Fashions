@@ -197,7 +197,45 @@ def vendor_login(request):
 
 def vendor_logout(request):
     logout(request)
-    return redirect("vendor_dashboard")
+    return redirect("vendor_login")
+
+
+# Custom admin Login and logout views
+
+
+def admin_login(request):
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        try:
+            account = Account.objects.get(email=email)
+            print("tried to fetch")
+            if not account.is_superadmin:
+                error_message = "Access denied. Please check your email and password"
+                messages.error(request, error_message)
+                return redirect("admin_login")
+        except Account.DoesNotExist:
+            error_message = "Access denied. Please check your email and password"
+            messages.error(request, error_message)
+            return redirect("admin_login")
+
+        authenticated_user = authenticate(email=email, password=password)
+        if authenticated_user is None:
+            error_message = "Invalid password. Please try again."
+            messages.error(request, error_message)
+            return redirect("admin_login")
+
+        login(request, authenticated_user)
+        return redirect("admin_dashboard")
+
+    return render(request, "muladmin/admin-login.html")
+
+
+def admin_logout(request):
+    logout(request)
+    return redirect("admin_login")
 
 
 # Account activation views
@@ -230,18 +268,19 @@ def customer_activation(request):
                     # Removing OTP cookies from session
                     request.session.pop("otp_secret_key", None)
                     request.session.pop("otp_valid_till", None)
-                    target_page = request.session.get("target_page")
+                    request.session.pop("otp_counter", None)
 
                     success_message = "Your email is verified. Please Login now"
                     messages.success(request, success_message)
 
                     # redirecting to targeted page
+                    target_page = request.session.get("target_page")
                     return redirect(target_page)
                 else:
                     error_message = "Invalid OTP"
                     messages.error(request, error_message)
             else:
-                error_message = "OTP entry timed out. To receive a new OTP, please click the 'Resend OTP' button below."
+                error_message = "OTP expired. Click 'Resend OTP' to get a new one."
                 messages.error(request, error_message)
         else:
             error_message = "Something went wrong. Please try again."

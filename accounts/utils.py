@@ -11,7 +11,7 @@ def send_otp(request):
     otp = hotp.at(otp_counter)
     request.session["otp_secret_key"] = secret_key
     request.session["otp_counter"] = otp_counter
-    valid_time = datetime.now() + timedelta(seconds=otp_counter)
+    valid_time = datetime.now() + timedelta(seconds=60)
     request.session["otp_valid_till"] = valid_time.isoformat()
 
     # Sending verification email
