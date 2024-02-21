@@ -1,0 +1,220 @@
+{% extends "vendor/vendor-base.html" %}
+
+{% block content %}
+
+{% include "vendor/includes/navigation.html" %}
+
+
+{% if request.session.step == 2 %}
+
+<!-- STEP-2 Product image upload section -->
+
+<section class="advt-post bg-gray py-5">
+  <div class="container">
+    <form method="POST" id="image-upload-form">
+      {% csrf_token %}
+      <fieldset class="border border-gary px-3 px-md-4 py-4 mb-5">
+        <div class="col-lg-12">
+          <h2>Add Product Images</h2>
+        </div>        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {% for id_value in '123456' %}
+              <div class="col-lg-4 d-flex flex-column justify-content-center align-items-center">
+                <div class="choose-file text-center my-4 rounded bg-white" style="height: 300px; width: 200px; position: relative; overflow: hidden;">
+                      <label for="file-upload-{{ id_value }}" style="height:100%">
+                          <input type="file" accept="image/jpeg,png,jpg,webp" name="product_image_{{ id_value }}" class="form-control-file d-none file-input" id="file-upload-{{ id_value }}" name="file{{ id_value }}">
+                          <div id="image-text{{ id_value }}" class="h5 font-weight-bold text-dark image-text" style="height:100%">Product Image - {{ id_value }}</div>
+                      </label>
+                      <div id="selected-image-container-{{ id_value }}" class="d-none" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                        <img id="selected-image-{{ id_value }}" class="selected-image" src="#" alt="Selected Image" style="width: 100%; height: 100%; object-fit: cover;">
+                      </div>
+                  </div>
+                  <span class="d-block btn btn-block bg-primary text-white my-3 rounded select-files" data-id="{{ id_value }}">Select Image</span>
+              </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <!-- submit button -->
+      <div id="image-upload-alert" class="alert alert-danger mt-3 text-center d-none" role="alert">
+        You must select at least 4 images.
+      </div>
+      <button type="submit" name="step_2_button" class="btn btn-primary d-block mt-2">Next</button></button>
+    </form>
+  </div>
+</section>
+
+{% elif step == 3 %}
+
+<!-- STEP-3 Product inventory section -->
+
+<section class="advt-post bg-gray py-5">
+  <div class="container">
+    <form method="POST" id="product-details-form">
+      {% csrf_token %}
+      <fieldset class="border border-gary px-3 px-md-4 py-4 mb-5">
+        <div class="row">
+          <div class="col-lg-12">
+            <h2>Add New Product</h2>
+          </div>
+          <div class="col-lg-6">
+            <h6 class="font-weight-bold pt-4 pb-1">Brand Name :</h6>
+            <input name="brand_name" maxlength="50" type="text" class="form-control bg-white" placeholder="Brand name" value="{% if request.session.brand_name %}{{request.session.brand_name}}{% endif %}" required>
+            <h6 class="font-weight-bold pt-4 pb-1">Select Category:</h6>
+            <select name="main_category" class="form-control w-100 bg-white" id="inputGroupSelect" required>
+              <option disabled selected hidden>Select category</option>
+              {% for category in categories %}
+                  <option class="bg-white" value="{{category.id}}">{{category.name}}</option>
+              {% endfor %}
+            </select>
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <div class="alert alert-danger mt-3 text-center" role="alert">
+                      {{message}}
+                    </div>
+                {% endif %} 
+            {% endfor %}
+          </div>
+          <div class="col-lg-6">
+              <h6 class="font-weight-bold pt-4 pb-1">Product Name:</h6>
+              <input name="product_name" maxlength="100" type="text" class="form-control bg-white" placeholder="Product name" value="{% if request.session.product_name %}{{request.session.product_name}}{% endif %}" required>
+            <h6 class="font-weight-bold pt-4 pb-1">Description:</h6>
+            <textarea name="description" maxlength="511" id="description" class="form-control bg-white" rows="7"
+              placeholder="Write details about your product" required>{% if request.session.description %}{{request.session.description}}{% endif %}</textarea>
+          </div>
+        </div>
+      </fieldset>
+      <!-- submit button -->
+      <button name="step_1_button" type="submit" class="btn btn-primary d-block mt-2">Next</button>
+    </form>
+  </div>
+</section>
+
+{% else  %}
+
+<!-- STEP-1 Product details section -->
+
+<section class="advt-post bg-gray py-5">
+    <div class="container">
+      <form method="POST" id="product-details-form">
+        {% csrf_token %}
+        <fieldset class="border border-gary px-3 px-md-4 py-4 mb-5">
+          <div class="row">
+            <div class="col-lg-12">
+              <h2>Add New Product</h2>
+            </div>
+            <div class="col-lg-6">
+              <h6 class="font-weight-bold pt-4 pb-1">Brand Name :</h6>
+              <input name="brand_name" maxlength="50" type="text" class="form-control bg-white" placeholder="Brand name" value="{% if request.session.brand_name %}{{request.session.brand_name}}{% endif %}" required>
+              <h6 class="font-weight-bold pt-4 pb-1">Select Category:</h6>
+              <select name="main_category" class="form-control w-100 bg-white" id="inputGroupSelect" required>
+                <option disabled selected hidden>Select category</option>
+                {% for category in categories %}
+                    <option class="bg-white" value="{{category.id}}">{{category.name}}</option>
+                {% endfor %}
+              </select>
+              {% for message in messages %}
+                  {% if message.tags == "error" %}
+                      <div class="alert alert-danger mt-3 text-center" role="alert">
+                        {{message}}
+                      </div>
+                  {% endif %} 
+              {% endfor %}
+            </div>
+            <div class="col-lg-6">
+                <h6 class="font-weight-bold pt-4 pb-1">Product Name:</h6>
+                <input name="product_name" maxlength="100" type="text" class="form-control bg-white" placeholder="Product name" value="{% if request.session.product_name %}{{request.session.product_name}}{% endif %}" required>
+              <h6 class="font-weight-bold pt-4 pb-1">Description:</h6>
+              <textarea name="description" maxlength="511" id="description" class="form-control bg-white" rows="7"
+                placeholder="Write details about your product" required>{% if request.session.description %}{{request.session.description}}{% endif %}</textarea>
+            </div>
+          </div>
+        </fieldset>
+        <!-- submit button -->
+        <button name="step_1_button" type="submit" class="btn btn-primary d-block mt-2">Next</button>
+      </form>
+    </div>
+</section>
+
+{% endif %}
+
+{% endblock content %}
+
+
+{% block extra_style %}
+
+<style>
+  
+  #selected-image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  div .image-text{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+</style>
+
+
+{% endblock extra_style %}
+
+
+{% block extra_scripts %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $(".select-files").on("click", function(e) {
+        var id = $(this).data("id");
+        if ($(this).text() === "Select Image") {
+            $("#file-upload-" + id).click();
+        } else {
+            e.preventDefault(); // Prevent default behavior of button
+            var id = $(this).data("id");
+            $("#selected-image-container-" + id).addClass("d-none");
+            $("#image-text" + id).removeClass("d-none");
+            $(".select-files[data-id='" + id + "']").text("Select Image").removeClass("bg-danger").addClass("bg-primary");
+            $("#file-upload-" + id).val("");
+        }
+    });
+
+    $(".file-input").on("change", function() {
+        var id = $(this).attr("id").replace("file-upload-", "");
+        var file = this.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $("#selected-image-" + id).attr("src", e.target.result);
+            $("#selected-image-container-" + id).removeClass("d-none");
+            $("#image-text" + id).addClass("d-none");
+            $(".select-files[data-id='" + id + "']").text("Remove Image").removeClass("bg-primary").addClass("bg-danger");
+        };
+        reader.readAsDataURL(file);
+    });
+
+    $("#image-upload-form").on("submit", function(event) {
+        var selectedImageCount = 0;
+        for (var i = 1; i <= 6; i++) {
+            var fileInput = document.getElementById("file-upload-" + i);
+            if (fileInput.files.length > 0) {
+                selectedImageCount++;
+            }
+        }
+
+        if (selectedImageCount < 4) {
+            event.preventDefault(); // Prevent form submission
+            $("#image-upload-alert").removeClass("d-none");
+        }
+    });
+  });
+
+</script>
+
+
+
+
+
+
+{% endblock extra_scripts %}

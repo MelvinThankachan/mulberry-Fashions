@@ -22,7 +22,16 @@ class AccountAdmin(UserAdmin):
     fieldsets = ()
 
 
-class UserAdmin(admin.ModelAdmin):
+class MemberAdmin(admin.ModelAdmin):
+    exclude = [
+        "is_admin",
+        "is_vendor",
+        "is_customer",
+        "is_staff",
+        "is_superadmin",
+        "password",
+    ]
+
     list_display = (
         "email",
         "first_name",
@@ -31,9 +40,9 @@ class UserAdmin(admin.ModelAdmin):
         "is_active",
     )
     list_display_links = ("email",)
-    readonly_fields = ("last_login", "date_joined", 'password')
+    readonly_fields = ("last_login", "date_joined", "password")
 
 
 admin.site.register(Account, AccountAdmin)
-admin.site.register(Customer, UserAdmin)
-admin.site.register(Vendor, UserAdmin)
+admin.site.register(Customer, MemberAdmin)
+admin.site.register(Vendor, MemberAdmin)

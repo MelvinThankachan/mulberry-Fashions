@@ -2,8 +2,11 @@
 
 {% block content %}
 
+
+<h1>Vendors</h1>
+
 <table id="hoverable-data-table" class="table table-hover nowrap" style="width:100%">
-    <thead>
+    <thead class="thead-dark">
      <tr>
       <th>Email</th>
       <th>First name</th>
@@ -30,9 +33,9 @@
             </td>
             <td class="text-center">
                 {% if vendor.approved %}
-                    <button class="btn-block btn-outline-danger">Ban</button>
+                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-danger">Ban</a>
                 {% else %}
-                    <button class="btn-block btn-outline-primary"></i>Approve</button>
+                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-primary">Approve</a>
                 {% endif %}
            </td>
         </tr>

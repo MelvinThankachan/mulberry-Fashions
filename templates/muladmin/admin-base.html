@@ -60,11 +60,12 @@
       NProgress.start();
     </script>
     
-    <div id="toaster"></div>
     
     <!-- ====================================
     ——— WRAPPER
     ===================================== -->
+    {% if user.is_authenticated and user.is_superadmin %}
+
     <div class="wrapper">
     
     
@@ -73,7 +74,7 @@
     
         <!-- ====================================
           ——— LEFT SIDEBAR WITH OUT FOOTER
-        ===================================== -->
+        ===================================== -->        
         <aside class="left-sidebar bg-sidebar">
           <div id="sidebar" class="sidebar">
             <!-- Aplication Brand -->
@@ -604,7 +605,7 @@
             </div>
           </div>
         </aside>
-    
+            
     
           <!-- ====================================
         ——— PAGE WRAPPER
@@ -1116,7 +1117,8 @@
               </div>
             </nav>
           </header>
-    
+
+          {% endif %}
           
           <!-- ====================================
           ——— CONTENT WRAPPER
@@ -1134,7 +1136,7 @@
     
     
     <!-- Footer -->
-    <footer class="footer mt-auto">
+    {% comment %} <footer class="footer mt-auto">
       <div class="copyright bg-white">
         <p>
           Copyright &copy; <span id="copy-year"></span> a template by <a class="text-primary" href="https://themefisher.com" target="_blank">Themefisher</a>.
@@ -1145,7 +1147,7 @@
         var year = d.getFullYear();
         document.getElementById("copy-year").innerHTML = year;
       </script>
-    </footer>
+    </footer> {% endcomment %}
     
     </div> <!-- End Page Wrapper -->
     </div> <!-- End Wrapper -->

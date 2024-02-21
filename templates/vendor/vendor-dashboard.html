@@ -20,7 +20,14 @@
           <div class="widget user-dashboard-profile">
             <!-- User Image -->
             <div class="profile-thumb">
-              <img src="{% static "vendor/images/user/user-thumb.jpg" %} " alt="" class="rounded-circle">
+              <img src="
+              {% if user.profile_pic %}
+              {{ user.image.url }}
+              {% else %}
+              {% static "vendor/images/user/default_profile_picture.png" %}
+              {% endif %}
+              "
+              alt="Profile Pic" class="rounded-circle">
             </div>
             <!-- User Name -->
             <h5 class="text-center">{{ user.first_name }}</h5>

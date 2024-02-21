@@ -33,6 +33,29 @@
   
   <link href="{% static "vendor/css/style.css" %}" rel="stylesheet">
 
+  <style>
+  
+    /* width */
+    ::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+    
+    /* Track */
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px white;
+      border-radius: 0.5rem;
+    }
+    
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      height: 50px;
+      background: #888888;
+      border-radius: 0.5rem;
+    }
+  </style>
+
+  {% block extra_style %}{% endblock extra_style %}
+
 </head>
 
 <body class="body-wrapper">
@@ -107,15 +130,15 @@
           <!-- App promotion -->
           <div class="block-2 app-promotion">
             <div class="mobile d-flex  align-items-center">
-              <a href="index.html">
+              <a href="{% url "vendor_dashboard" %}">
                 <!-- Icon -->
                 <img src="{% static "vendor/images/footer/phone-icon.png" %} " alt="mobile-icon">
               </a>
               <p class="mb-0">Get the Dealsy Mobile App and Save more</p>
             </div>
             <div class="download-btn d-flex my-3">
-              <a href="index.html"><img src="{% static "vendor/images/apps/google-play-store.png" %} " class="img-fluid" alt=""></a>
-              <a href="index.html" class=" ml-3"><img src="{% static "vendor/images/apps/apple-app-store.png" %} " class="img-fluid" alt=""></a>
+              <a href="{% url "vendor_dashboard" %}"><img src="{% static "vendor/images/apps/google-play-store.png" %} " class="img-fluid" alt=""></a>
+              <a href="{% url "vendor_dashboard" %}" class=" ml-3"><img src="{% static "vendor/images/apps/apple-app-store.png" %} " class="img-fluid" alt=""></a>
             </div>
           </div>
         </div>

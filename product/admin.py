@@ -3,13 +3,16 @@ from .models import Category, Product, Inventory
 
 # Register your models here.
 
+
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ["name"]
     prepopulated_fields = {"slug": ("name",)}
 
+
 class ProductAdmin(admin.ModelAdmin):
-    prepopulated_fields = {"slug": ("name",)}
-    list_display = ('name', 'is_available')
+    prepopulated_fields = {"slug": ("brand_name","name",)}
+    list_display = ("name", "is_available")
+
 
 class InventoryAdmin(admin.ModelAdmin):
     list_display = ["product_id", "size", "price", "stock"]

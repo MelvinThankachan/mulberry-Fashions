@@ -15,7 +15,7 @@
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul class="navbar-nav ml-auto main-nav ">
 							<li class="nav-item @@home">
-								<a class="nav-link" href="index.html">Home</a>
+								<a class="nav-link" href="{% url "vendor_dashboard" %}">Home</a>
 							</li>
 							<li class="nav-item dropdown dropdown-slide @@dashboard">
 								<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#!">Dashboard<span><i class="fa fa-angle-down"></i></span>
@@ -33,8 +33,8 @@
 										<a class="dropdown-item dropdown-toggle" href="#!" id="dropdown0501" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sub Menu</a>
 					
 										<ul class="dropdown-menu" aria-labelledby="dropdown0501">
-											<li><a class="dropdown-item" href="index.html">Submenu 01</a></li>
-											<li><a class="dropdown-item" href="index.html">Submenu 02</a></li>
+											<li><a class="dropdown-item" href="{% url "vendor_dashboard" %}">Submenu 01</a></li>
+											<li><a class="dropdown-item" href="{% url "vendor_dashboard" %}">Submenu 02</a></li>
 										</ul>
 									</li>
 								</ul>
@@ -70,8 +70,8 @@
 										<a class="dropdown-item dropdown-toggle" href="#!" id="dropdown0201" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sub Menu</a>
 					
 										<ul class="dropdown-menu" aria-labelledby="dropdown0201">
-											<li><a class="dropdown-item" href="index.html">Submenu 01</a></li>
-											<li><a class="dropdown-item" href="index.html">Submenu 02</a></li>
+											<li><a class="dropdown-item" href="{% url "vendor_dashboard" %}">Submenu 01</a></li>
+											<li><a class="dropdown-item" href="{% url "vendor_dashboard" %}">Submenu 02</a></li>
 										</ul>
 									</li>
 								</ul>
@@ -79,10 +79,7 @@
 						</ul>
 						<ul class="navbar-nav ml-auto mt-10">
 							<li class="nav-item">
-								<a class="nav-link login-button" href="{% url "vendor_login" %}">Login</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link text-white add-button" href="ad-listing.html"><i class="fa fa-plus-circle"></i> Add Listing</a>
+								<a class="nav-link text-white add-button" href="{% url "add_product" %}"><i class="fa fa-plus-circle"></i>&nbsp; &nbsp; New Product</a>
 							</li>
 						</ul>
 					</div>

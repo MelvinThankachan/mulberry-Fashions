@@ -265,10 +265,11 @@ def customer_activation(request):
                     account.is_active = True
                     account.save()
 
-                    # Removing OTP cookies from session
+                    # Deleting OTP cookies from session
                     request.session.pop("otp_secret_key", None)
                     request.session.pop("otp_valid_till", None)
                     request.session.pop("otp_counter", None)
+
 
                     success_message = "Your email is verified. Please Login now"
                     messages.success(request, success_message)
