@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from accounts.models import Vendor
 
 
 class Category(models.Model):
@@ -19,13 +20,13 @@ class Product(models.Model):
     brand_name = models.CharField(max_length=50)
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(max_length=511, null=True, blank=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     main_category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="main_category_products"
     )
     subcategories = models.ManyToManyField(
-        Category, related_name="subcategory_products"
+        Category, related_name="subcategory_products", null=True, blank=True
     )
-    image = models.ImageField(upload_to="images/products")
     is_available = models.BooleanField(default=True)
     slug = models.SlugField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -60,7 +61,7 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product, related_name="product_images", on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to="products_images/")
+    image = models.ImageField(upload_to="images/product_images")
     priority = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
