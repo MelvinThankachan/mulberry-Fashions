@@ -2,65 +2,60 @@
 
 {% block content %}
 
-{% include "vendor/includes/navigation.html" %}
+    {% include "vendor/includes/navigation.html" %}
 
-
-<section class="login py-5 border-top-1">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-5 col-md-8 align-item-center">
-        <div class="border">
-          <h3 class="bg-gray p-4">Email Verification</h3>
-          <form action="" method="post">
-            {% csrf_token %}
-            <fieldset class="p-4">
-              <p class="">Please check your email for the OTP.</p>
-                {% for message in messages %}
-                    {% if message.tags == "success" %}
-                        <div class="alert alert-success" role="alert">
-                            {{message}}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-              <input pattern="^[0-9]{6}$" oninvalid="this.setCustomValidity('Enter a 6-digit OTP')" id="otp" name="otp" maxlength="6" class="form-control mb-3" type="text" placeholder="Enter OTP here" required>
-                {% for message in messages %}
-                    {% if message.tags == "error" %}
-                        <div class="alert alert-danger" role="alert">
-                            {{message}}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-              {% if time_left > 0 %}
-              <p> Enter OTP in <span id="countdowntimer">{{ time_left }}</span> Seconds</p>
-              {% else %}
-              <p class=""><a href="{% url "otp_view" %}">Resend OTP</a></p>
-              {% endif %}
-              <button type="submit" class="btn btn-primary font-weight-bold mt-3">Verify</button>
-            </fieldset>
-          </form>
+    <section class="login py-5 border-top-1">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-8 align-item-center">
+                    <div class="border">
+                        <h3 class="bg-gray p-4">Email Verification</h3>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <fieldset class="p-4">
+                                <p class="">Please check your email for the OTP.</p>
+                                {% for message in messages %}
+                                    {% if message.tags == "success" %}
+                                        <div class="alert alert-success" role="alert">
+                                            {{message}}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <input pattern="^[0-9]{6}$" oninvalid="this.setCustomValidity('Enter a 6-digit OTP')" id="otp" name="otp" maxlength="6" class="form-control mb-3" type="text" placeholder="Enter OTP here" required>
+                                {% for message in messages %}
+                                    {% if message.tags == "error" %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {{message}}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if time_left > 0 %}
+                                    <p> Enter OTP in <span id="countdowntimer">{{ time_left }}</span> Seconds</p>
+                                {% else %}
+                                    <p class=""><a href="{% url "otp_view" %}">Resend OTP</a></p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary font-weight-bold mt-3">Verify</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
+    </section>
 
 {% endblock content %}
 
-
 {% block extra_scripts %}
 
-<script>
-
-    // Script for otp countdown timer
-    var timeleft = {{time_left}};
-    var downloadTimer = setInterval(function(){
-    timeleft--;
-    document.getElementById("countdowntimer").textContent = timeleft;
-    if(timeleft <= 0)
-        clearInterval(downloadTimer);
-    },1000);
-
-</script>
+    <script>
+        // Script for otp countdown timer
+        var timeleft = {{time_left}};
+        var downloadTimer = setInterval(function(){
+            timeleft--;
+            document.getElementById("countdowntimer").textContent = timeleft;
+            if(timeleft <= 0)
+                clearInterval(downloadTimer);
+        },1000);
+    </script>
 
 {% endblock extra_scripts %}

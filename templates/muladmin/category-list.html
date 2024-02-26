@@ -1,0 +1,30 @@
+{% extends "muladmin/admin-base.html" %}
+
+{% block content %}
+
+
+<h1>Categories</h1>
+
+<table id="hoverable-data-table" class="table table-hover nowrap" style="width:100%">
+    <thead class="thead-dark">
+     <tr>
+      <th>Name</th>
+      <th>No. of products</th>
+      <th>Slug</th>
+      <th>Edit/Delete</th>
+     </tr>
+    </thead>
+  
+    <tbody>
+        {% for category in categories %}
+        <tr>
+            <td><a href="">{{ category.name }}</a></td>
+            <td>{{ category.count }}</td>
+            <td>{{ category.slug }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+   </table>
+
+
+{% endblock content %}

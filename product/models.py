@@ -18,22 +18,23 @@ class Category(models.Model):
 
 class Product(models.Model):
     brand_name = models.CharField(max_length=50)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(max_length=511, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     main_category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="main_category_products"
     )
     subcategories = models.ManyToManyField(
-        Category, related_name="subcategory_products", null=True, blank=True
+        Category, related_name="subcategory_products", blank=True
     )
+    mrp = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     is_available = models.BooleanField(default=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.brand_name} {self.name}"
 
 
 class Inventory(models.Model):
@@ -51,7 +52,7 @@ class Inventory(models.Model):
     stock = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"{self.size} - {self.product.name}"
+        return f"{self.product.name} - {self.size} size"
 
     class Meta:
         verbose_name_plural = "Inventory"

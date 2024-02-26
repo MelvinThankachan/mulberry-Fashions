@@ -11,11 +11,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("brand_name","name",)}
-    list_display = ("name", "is_available")
+    list_display = ("brand_name", "name", "vendor", "is_available")
+    list_display_links = ("brand_name", "name")
 
 
 class InventoryAdmin(admin.ModelAdmin):
-    list_display = ["product_id", "size", "price", "stock"]
+    list_display = ["product", "size", "price", "stock"]
 
 
 admin.site.register(Category, CategoryAdmin)

@@ -13,9 +13,9 @@
 			<div class="col-md-4 col-xs-12 col-sm-4">
 				<!-- Site Logo -->
 				<div class="logo text-center">
-					<a href="index.html">
+					<a href="{% url "home" %}">
 						<!-- replace logo here -->
-						<img style="width:200px" src="{% static "images/logo.png" %}" alt="logo">
+						<img style="width:300px" src="{% static "images/logo.png" %}" alt="logo">
 					</a>
 				</div>
 			</div>
@@ -237,7 +237,7 @@
 							role="button" aria-haspopup="true" aria-expanded="false">Accounts <span
 								class="tf-ion-ios-arrow-down"></span></a>
 						<ul class="dropdown-menu">
-							{% if user.is_authenticated %}
+							{% if user.is_authenticated and user.is_customer%}
 							<li> Hi {{user.first_name}} !</li>
 							<li><a href="typography.html">Dashboard</a></li>
 							<li><a href="{% url "customer_logout" %}">Logout</a></li>

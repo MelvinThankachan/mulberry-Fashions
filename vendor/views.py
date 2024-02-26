@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from product.models import Category, Product, ProductImage
+from product.models import Category, Product, ProductImage, Inventory
 from accounts.models import Vendor
 from django.utils.text import slugify
 
@@ -21,7 +21,15 @@ def vendor_login_required(func):
 
 @vendor_login_required
 def dashboard(request):
-    return render(request, "vendor/vendor-dashboard.html")
+    title = "Vendor Dashboard"
+    products = Product.objects.filter(vendor=request.user).prefetch_related("product_images")
+    for product in products:
+        primary_image = product.product_images.filter(priority=1).first()
+        product.primary_image = primary_image
+
+    context = {"products": products, "title": title}
+
+    return render(request, "vendor/vendor-dashboard.html", context)
 
 
 @vendor_login_required
@@ -29,8 +37,8 @@ def add_product(request):
 
     if request.method == "POST":
         # Getting the product details
-        brand_name = request.POST.get("brand_name")
-        product_name = request.POST.get("product_name")
+        brand_name = request.POST.get("brand_name").title()
+        product_name = request.POST.get("product_name").title()
         description = request.POST.get("description")
         main_category_name = request.POST.get("main_category")
 
@@ -48,41 +56,55 @@ def add_product(request):
         s_stock = request.POST.get("s_stock")
         m_price = request.POST.get("m_price")
         m_stock = request.POST.get("m_stock")
-        l_price = request.POST.get("l_price")        
+        l_price = request.POST.get("l_price")
         l_stock = request.POST.get("l_stock")
         xl_price = request.POST.get("xl_price")
         xl_stock = request.POST.get("xl_stock")
-        
+
         # Creating the new product
         main_category = Category.objects.get(name=main_category_name)
         vendor = Vendor.objects.get(email=request.user)
         slug_string = f"{brand_name} {product_name}"
         slug = slugify(slug_string)
+        suffix = 2
         while Product.objects.filter(slug=slug).exists():
-            slug = f"{slug}-{suffix}"
+            slug = slugify(f"{slug_string}-{suffix}")
             suffix += 1
 
         new_product = Product.objects.create(
-            brand_name = brand_name,
-            name = product_name,
-            description = description,
-            main_category = main_category,
-            vendor = vendor,
-            slug = slug
+            brand_name=brand_name,
+            name=product_name,
+            description=description,
+            main_category=main_category,
+            vendor=vendor,
+            slug=slug,
         )
 
         # Storing product images
         priority = 1
         for image in product_images:
             new_product_image = ProductImage.objects.create(
-                product = new_product,
-                image = image,
-                priority = priority
+                product=new_product, image=image, priority=priority
             )
             priority += 1
 
+        # Creating product inventory
+        size_price_stock = [
+            ("S", s_price, s_stock),
+            ("M", m_price, m_stock),
+            ("L", l_price, l_stock),
+            ("XL", xl_price, xl_stock),
+        ]
+
+        for size, price, stock in size_price_stock:
+            inventory = Inventory.objects.create(
+                product=new_product, size=size, price=price, stock=stock
+            )
+
+        return redirect("vendor_dashboard")
 
     categories = Category.objects.all()
-    context = {"categories": categories}
+    title = "New Product"
+    context = {"categories": categories, "title": title}
 
     return render(request, "vendor/add-product.html", context)

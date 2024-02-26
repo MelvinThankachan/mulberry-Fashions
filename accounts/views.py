@@ -12,8 +12,8 @@ from datetime import datetime
 def customer_signup(request):
 
     if request.method == "POST":
-        first_name = request.POST.get("first_name").capitalize()
-        last_name = request.POST.get("last_name").capitalize()
+        first_name = request.POST.get("first_name").title()
+        last_name = request.POST.get("last_name").title()
         email = request.POST.get("email").lower()
         password = request.POST.get("password")
         password2 = request.POST.get("password2")
@@ -109,8 +109,8 @@ def customer_logout(request):
 def vendor_signup(request):
 
     if request.method == "POST":
-        first_name = request.POST.get("first_name").capitalize()
-        last_name = request.POST.get("last_name").capitalize()
+        first_name = request.POST.get("first_name").title()
+        last_name = request.POST.get("last_name").title()
         email = request.POST.get("email").lower()
         password = request.POST.get("password")
         password2 = request.POST.get("password2")

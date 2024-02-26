@@ -11,7 +11,7 @@
     <!-- theme meta -->
     <meta name="theme-name" content="sleek" />
     
-    <title>Ecommerce - Sleek Admin Dashboard Template</title>
+    <title>{{title}} | Admin | Mulberry Fashions</title>
     
     <!-- GOOGLE FONTS -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500|Poppins:400,500,600,700|Roboto:400,500" rel="stylesheet" />
@@ -50,6 +50,29 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script src="{% static "muladmin/plugins/nprogress/nprogress.js" %}"></script>
+
+    <style>
+  
+      /* width */
+      ::-webkit-scrollbar {
+        width: 0.75rem;
+      }
+      
+      /* Track */
+      ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px white;
+        border-radius: 0.5rem;
+      }
+      
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        height: 50px;
+        background: #888888;
+        border-radius: 0.5rem;
+      }
+
+      </style>
+
   </head>
 
   <body class="header-fixed sidebar-fixed sidebar-dark header-light" id="body">
@@ -89,28 +112,41 @@
             <div class="sidebar-inside" data-simplebar >
               <!-- sidebar menu -->
               <ul class="nav sidebar-inner" id="sidebar-menu">
-                <li class="has-sub ">
+                <li class="{% if current_page == "admin_dashboard" %}active{% endif %}">
+                  <a href="{% url 'admin_dashboard' %}">
+                    <i class="mdi mdi-view-dashboard-outline"></i>
+                    <span class="nav-text">Dashboard</span> 
+                  </a>
+                </li>
+                <li class="has-sub {% if current_page == 'customer_list' or current_page == 'vendor_list' %}active expand{% endif %}">
                   <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#app"
                     aria-expanded="false" aria-controls="app">
-                    <i class="mdi mdi-pencil-box-multiple"></i>
+                    <i class="mdi mdi-account-box"></i>
                     <span class="nav-text">Users</span> <b class="caret"></b>
                   </a>
     
-                  <ul class="collapse " id="app" data-parent="#sidebar-menu">
+                  <ul class="collapse {% if current_page == 'customer_list' or current_page == 'vendor_list' %}show{% endif %}" id="app" data-parent="#sidebar-menu">
                     <div class="sub-menu">
-                      <li class="">
+                      <li class="{% if current_page == 'customer_list' %}active{% endif %}">
                         <a class="sidenav-item-link" href="{% url "customer_list" %}">
                           <span class="nav-text">Customers</span>
                         </a>
                       </li>
     
-                      <li class="">
+                      <li class="{% if current_page == 'vendor_list' %}active{% endif %}">
                         <a class="sidenav-item-link" href="{% url "vendor_list" %}">
                           <span class="nav-text">Vendors</span>
                         </a>
                       </li>
                     </div>
                   </ul>
+                </li>
+
+                <li class="{% if current_page == 'category_list' %}active{% endif %}">
+                  <a href="{% url "category_list" %}">
+                    <i class="mdi mdi-shape-outline"></i>
+                    <span class="nav-text">Categories</span>
+                  </a>
                 </li>
     
                 <!-- <li class="section-title">
@@ -1080,7 +1116,7 @@
                   <li class="dropdown user-menu">
                     <button href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                       <img src="{% static "muladmin/img/user/user.png" %}" class="user-image" alt="User Image" />
-                      <span class="d-none d-lg-inline-block">Abdus Salam</span>
+                      <span class="d-none d-lg-inline-block">{{user.first_name}} {{user.last_name}}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
                       <!-- User image -->
