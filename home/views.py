@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from product.models import Product, Category, ProductImage, Inventory
+from django.core.paginator import Paginator
 
 
 # Create your views here.
@@ -27,8 +28,14 @@ def shop(request):
         small_size = product.inventory_sizes.get(size="S")
         small_size_price = small_size.price
         product.price = small_size_price
+    
+    products = [product for product in products for _ in range(5)]
+    paginator = Paginator(products, 3)
+    page = request.GET.get("page")
+    paged_products = paginator.get_page(page)
+
     categories = Category.objects.all()
-    context = {"products": products, "categories": categories, "title": title}
+    context = {"products": paged_products, "categories": categories, "title": title}
     return render(request, "home/shop.html", context)
 
 

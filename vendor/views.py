@@ -26,6 +26,12 @@ def dashboard(request):
     for product in products:
         primary_image = product.product_images.filter(priority=1).first()
         product.primary_image = primary_image
+    for product in products:
+        inventory = Inventory.objects.filter(product=product)
+        total_stock = 0
+        for inv in inventory:
+            total_stock += inv.stock
+        product.total_stock = total_stock
 
     context = {"products": products, "title": title}
 

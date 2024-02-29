@@ -6,14 +6,15 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="col-md-7">Vendors</h1>
+        <h1 class="col-md-7">Products</h1>
         <form class="form-inline" method="post">
             {% csrf_token %}
             <div class="form-group mr-2">
                 <label for="filter_option" class="mr-2">Filter by:</label>
                 <select class="form-control input-sm" name="filter_option" id="filter_option">
-                    <option {% if request.session.selection == "all" %}selected{% endif %} value="all">All Vendors</option>
-                    <option {% if request.session.selection == "waiting_approval" %}selected{% endif %} value="waiting_approval">Vendors Waiting for Approval</option>
+                    <option {% if request.session.selection == "all" %}selected{% endif %} value="all">All Products</option>
+                    <option {% if request.session.selection == "awaiting_listing" %}selected{% endif %} value="awaiting_listing">Products Awaiting Listing</option>
+                    <option {% if request.session.selection == "listed_products" %}selected{% endif %} value="listed_products">Listed Products</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-sm btn-primary">Apply Filter</button>
@@ -25,34 +26,34 @@
     <table id="hoverable-data-table" class="table table-hover nowrap" style="width:100%">
         <thead class="thead-dark">
             <tr>
-                <th>Email</th>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Last login</th>
-                <th class="text-center">Active status</th>
-                <th class="text-center">Approve/Ban</th>
+                <th>Brand Name</th>
+                <th>Product name</th>
+                <th>Vendor</th>
+                <th class="text-center">Total Stock</th>
+                <th class="text-center">Is Available</th>
+                <th class="text-center">List</th>
             </tr>
         </thead>
         
         <tbody>
-            {% for vendor in vendors %}
+            {% for product in products %}
             <tr>
-                <td><a href="">{{ vendor.email }}</a></td>
-                <td>{{ vendor.first_name }}</td>
-                <td>{{ vendor.last_name }}</td>
-                <td>{{ vendor.last_login }}</td>
+                <td>{{ product.brand_name }}</td>
+                <td><a href="">{{ product.name }}</a></td>
+                <td>{{ product.vendor }}</td>
+                <td class="text-center">{{ product.total_stock }}</td>
                 <td class="text-center">
-                    {% if vendor.is_active %}
+                    {% if product.is_available %}
                     <span class="mdi mdi-check-circle text-success"></span>
                     {% else %}
                     <span class="mdi mdi-close-circle text-danger"></span>
                     {% endif %}
                 </td>
                 <td class="text-center">
-                    {% if vendor.approved %}
-                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-danger">Ban</a>
+                    {% if product.approved %}
+                    <a href="{% url "product_approval" product.id %}" class="btn-block btn-outline-danger">Unlist</a>
                     {% else %}
-                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-primary">Approve</a>
+                    <a href="{% url "product_approval" product.id %}" class="btn-block btn-outline-primary">List</a>
                     {% endif %}
                 </td>
             </tr>

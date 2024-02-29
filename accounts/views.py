@@ -24,9 +24,7 @@ def customer_signup(request):
             return redirect("customer_signup")
 
         if Customer.objects.filter(email=email).exists():
-            error_message = (
-                "Email already registered. Please log in or use a different email."
-            )
+            error_message = "Email already registered. Please log in or use a different email."
             messages.error(request, error_message)
         else:
             try:
@@ -38,6 +36,7 @@ def customer_signup(request):
                     password=password,
                 )
                 customer.is_customer = True
+                customer.approved = True
                 customer.save()
                 success_message = "Please verify your email."
                 messages.success(request, success_message)
@@ -121,9 +120,7 @@ def vendor_signup(request):
             return redirect("vendor_signup")
 
         if Vendor.objects.filter(email=email).exists():
-            error_message = (
-                "Email already registered. Please log in or use a different email."
-            )
+            error_message = "Email already registered. Please log in or use a different email."
             messages.error(request, error_message)
         else:
             try:

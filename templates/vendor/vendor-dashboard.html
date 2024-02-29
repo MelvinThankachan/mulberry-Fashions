@@ -81,6 +81,7 @@
                     <h3 class="title">{{product.name}}</h3>
                     <span class=""><strong>Ad ID:</strong>{{product.id}}</span>
                     <span class=""><strong>Brand:</strong>{{product.brand_name}}</span>
+                  <span class=""><strong>Stock Left:</strong>{{product.total_stock}}</span>
                     <span><strong>Posted on:</strong><time>{{product.created_at}}</time></span>
                     <span class="{% if product.is_available %}status active{% endif %}"><strong>Status</strong>{% if product.is_available %}Active{% else %}Inactive{% endif %}</span>
                   </td>

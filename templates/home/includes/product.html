@@ -20,10 +20,7 @@
 					</span>
 				</li>
 				<li>
-					<a href="#!" ><i class="tf-ion-ios-heart"></i></a>
-				</li>
-				<li>
-					<a href="#!"><i class="tf-ion-android-cart"></i></a>
+					<a href="#!" ><i style="fill: red" class="tf-ion-ios-heart"></i></a>
 				</li>
 			</ul>
 		</div>
@@ -31,7 +28,7 @@
 	<div class="product-content">	
 		<a href="{% url "product_page" product.slug %}">
 			<h4><strong>{{ product.brand_name }}</strong></h4>
-			<h4 class="truncate">{{ product.name }}</h4>
+			<p class="truncate">{{ product.name }}</p>
 			<p class="price"><strong class="h4">&#8377; {{ product.price }} </strong><del class="h6"> MRP: {{ product.mrp }}</del></p>
 		</a>
 	</div>

@@ -6,7 +6,7 @@ from accounts.models import Vendor
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
     image = models.ImageField(upload_to="images/categories")
-    description = models.TextField(max_length=255, null=True, blank=True)
+    description = models.TextField(max_length=511, null=True, blank=True)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
@@ -32,6 +32,7 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified_at = models.DateTimeField(auto_now=True)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.brand_name} {self.name}"

@@ -64,10 +64,42 @@
                             </div>
                         {% endfor %}
                     </div>
+                    {% if products.has_other_pages %}
+                        <div class="text-center">
+                            <ul class="pagination post-pagination">
+                                {% if products.has_previous %}
+                                    <li><a href="?page={{ products.previous_page_number }}">Prev</a></li>
+                                    {% if products.number > 4 %}
+                                        <li><a href="?page=1">First</a></li>
+                                    {% endif %}
+                                {% endif %}
+                                {% for page_number in products.paginator.page_range %}
+                                    {% if page_number >= products.number|add:"-3" and page_number <= products.number|add:"3" %}
+                                        {% if products.number == page_number %}
+                                            <li class="active"><a href="#">{{ page_number }}</a></li>
+                                        {% else %}
+                                            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+                                        {% endif %}
+                                    {% elif page_number == products.number|add:"-4" or page_number == products.number|add:"4" %}
+                                        <li><span>...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if products.has_next %}
+                                    {% if products.number < products.paginator.num_pages|add:"-3" %}
+                                        <li><a href="?page={{ products.paginator.num_pages }}">Last</a></li>
+                                    {% endif %}
+                                    <li><a href="?page={{ products.next_page_number }}">Next</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    
+                    {% endif %}
                 </div>
             </div>
         </div>
     </section>
+
+      
 
     {% include "home/includes/footer.html" %}
 {% endblock content %}

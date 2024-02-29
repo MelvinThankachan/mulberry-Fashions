@@ -72,6 +72,8 @@
       }
 
       </style>
+    
+      {% block extra_styles %}{% endblock extra_styles %}
 
   </head>
 
@@ -118,14 +120,15 @@
                     <span class="nav-text">Dashboard</span> 
                   </a>
                 </li>
+
                 <li class="has-sub {% if current_page == 'customer_list' or current_page == 'vendor_list' %}active expand{% endif %}">
-                  <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#app"
-                    aria-expanded="false" aria-controls="app">
-                    <i class="mdi mdi-account-box"></i>
+                  <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#users"
+                    aria-expanded="false" aria-controls="users">
+                    <i class="mdi mdi-account-group-outline"></i>
                     <span class="nav-text">Users</span> <b class="caret"></b>
                   </a>
     
-                  <ul class="collapse {% if current_page == 'customer_list' or current_page == 'vendor_list' %}show{% endif %}" id="app" data-parent="#sidebar-menu">
+                  <ul class="collapse {% if current_page == 'customer_list' or current_page == 'vendor_list' %}show{% endif %}" id="users" data-parent="#sidebar-menu">
                     <div class="sub-menu">
                       <li class="{% if current_page == 'customer_list' %}active{% endif %}">
                         <a class="sidenav-item-link" href="{% url "customer_list" %}">
@@ -142,18 +145,50 @@
                   </ul>
                 </li>
 
-                <li class="{% if current_page == 'category_list' %}active{% endif %}">
-                  <a href="{% url "category_list" %}">
+                <li class="has-sub {% if current_page == 'category_list' or current_page == 'add_category' %}active expand{% endif %}">
+                  <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#categories"
+                    aria-expanded="false" aria-controls="categories">
                     <i class="mdi mdi-shape-outline"></i>
-                    <span class="nav-text">Categories</span>
+                    <span class="nav-text">Categories</span> <b class="caret"></b>
+                  </a>
+    
+                  <ul class="collapse {% if current_page == 'category_list' or current_page == 'add_category' %}show{% endif %}" id="categories" data-parent="#sidebar-menu">
+                    <div class="sub-menu">
+                      <li class="{% if current_page == 'category_list' %}active{% endif %}">
+                        <a class="sidenav-item-link" href="{% url "category_list" %}">
+                          <span class="nav-text">Categories</span>
+                        </a>
+                      </li>
+    
+                      <li class="{% if current_page == 'add_category' %}active{% endif %}">
+                        <a class="sidenav-item-link" href="{% url "add_category" %}">
+                          <span class="nav-text">Add Category</span>
+                        </a>
+                      </li>
+                    </div>
+                  </ul>
+                </li>
+
+                <li class="{% if current_page == "product_list" %}active{% endif %}">
+                  <a href="{% url 'product_list' %}">
+                    <i class="mdi mdi-tshirt-crew-outline"></i>
+                    <span class="nav-text">Products</span> 
                   </a>
                 </li>
+                
+                <li class="{% if current_page == "add_account" %}active{% endif %}">
+                  <a href="{% url 'add_account' %}">
+                    <i class="mdi mdi-account-multiple-plus-outline"></i>
+                    <span class="nav-text">Add Accounts</span> 
+                  </a>
+                </li>
+                
     
                 <!-- <li class="section-title">
                   UI Elements
                 </li> -->
     
-                <li class="has-sub ">
+                {% comment %} <li class="has-sub ">
                   <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#components"
                     aria-expanded="false" aria-controls="components">
                     <i class="mdi mdi-folder-multiple-outline"></i>
@@ -636,7 +671,7 @@
     
                 <!-- <li class="section-title">
                   Documentation
-                </li> -->
+                </li> --> {% endcomment %}
               </ul>
             </div>
           </div>
@@ -676,7 +711,7 @@
                       <i class="mdi mdi-bell-outline"></i>
                     </button>
     
-                    <div class="card card-default dropdown-notify dropdown-menu-right mb-0">
+                    {% comment %} <div class="card card-default dropdown-notify dropdown-menu-right mb-0">
                       <div class="card-header card-header-border-bottom px-3">
                         <h2>Notifications</h2>
                       </div>
@@ -1070,9 +1105,9 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> {% endcomment %}
     
-                    <ul class="dropdown-menu dropdown-menu-right d-none">
+                    {% comment %} <ul class="dropdown-menu dropdown-menu-right d-none">
                       <li class="dropdown-header">You have 5 notifications</li>
                       <li>
                         <a href="#">
@@ -1107,7 +1142,7 @@
                       <li class="dropdown-footer">
                         <a class="text-center" href="#"> View All </a>
                       </li>
-                    </ul>
+                    </ul> {% endcomment %}
                   </li>
                   <li class="right-sidebar-in right-sidebar-2-menu">
                     <i class="mdi mdi-settings mdi-spin"></i>
@@ -1115,19 +1150,18 @@
                   <!-- User Account -->
                   <li class="dropdown user-menu">
                     <button href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                      <img src="{% static "muladmin/img/user/user.png" %}" class="user-image" alt="User Image" />
+                      <img src="{% if user.profile_pic %}{{ user.image.url }}{% else %}{% static "vendor/images/user/default_profile_picture.png" %}{% endif %}" class="user-image" alt="User Image" />
                       <span class="d-none d-lg-inline-block">{{user.first_name}} {{user.last_name}}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
                       <!-- User image -->
-                      <li class="dropdown-header">
-                        <img src="{% static "muladmin/img/user/user.png" %}" class="img-circle" alt="User Image" />
-                        <div class="d-inline-block">
-                          Abdus Salam <small class="pt-1">iamabdus@gmail.com</small>
+                      <li style="overflow:hidden" class="dropdown-header">
+                        <img src="{% if user.profile_pic %}{{ user.image.url }}{% else %}{% static "vendor/images/user/default_profile_picture.png" %}{% endif %}" class="img-circle" alt="User Image" />
+                        <div class="d-inline-block"> {{user.first_name}} {{user.last_name}} <small class="pt-1">{{ user.email }}</small>
                         </div>
                       </li>
     
-                      <li>
+                      <li>  
                         <a href="user-profile.html">
                           <i class="mdi mdi-account"></i> My Profile
                         </a>
