@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from accounts.models import Customer, Vendor, Account
 from product.models import Category, Product, Inventory, ProductImage
+from customer.models import OrderItem
 from django.utils.text import slugify
 from django.contrib import messages
 from django.http import HttpResponse
@@ -13,6 +14,8 @@ def admin_login_required(func):
 
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_superadmin:
+            target_url = request.build_absolute_uri()
+            request.session['admin_target_url'] = target_url
             return redirect("admin_login")
         return func(request, *args, **kwargs)
 
@@ -53,6 +56,7 @@ def customer_approval(request, pk):
 
     return redirect("customer_list")
 
+
 @admin_login_required
 def vendor_list(request):
     title = "Vendors"
@@ -85,9 +89,21 @@ def category_list(request):
     title = "Categories"
     current_page = "category_list"
     categories = Category.objects.all().order_by("name")
+    request.session["selection"] = "listed_categories"
+
     for category in categories:
-        count = Product.objects.filter(main_category=category).count()
-        category.count = count
+        category.count = category.main_category_products.count()
+
+    if request.method == "POST":
+        filter_option = request.POST.get("filter_option")
+        if filter_option == "deleted_categories":
+            categories = Category.all_objects.filter(is_deleted=True)
+            request.session["selection"] = "deleted_categories"
+            for category in categories:
+                category.count = Product.all_objects.filter(
+                    main_category=category
+                ).count()
+
     context = {"categories": categories, "title": title, "current_page": current_page}
     return render(request, "muladmin/category-list.html", context)
 
@@ -126,6 +142,7 @@ def edit_category(request, slug):
     title = f"{slug.capitalize()} | Edit Category"
     category = Category.objects.get(slug=slug)
     image_url = category.image.url
+
     if request.method == "POST":
         category_name = request.POST.get("category_name").title()
         category_description = request.POST.get("category_description")
@@ -151,6 +168,33 @@ def edit_category(request, slug):
 
 
 @admin_login_required
+def delete_category(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+
+    # Soft deleting products related to the category
+    for product in category.main_category_products.all():
+        product.delete()
+
+    # Soft deleting category
+    category.delete()
+
+    return redirect("category_list")
+
+
+@admin_login_required
+def restore_category(request, slug):
+    category = Category.all_objects.get(slug=slug)
+    products = Product.all_objects.filter(main_category=category)
+
+    for product in products:
+        product.restore()
+
+    category.restore()
+
+    return redirect("category_list")
+
+
+@admin_login_required
 def product_list(request):
     title = "Products"
     current_page = "product_list"
@@ -160,7 +204,6 @@ def product_list(request):
     # Filter function
     if request.method == "POST":
         filter_option = request.POST.get("filter_option")
-        print(filter_option)
         if filter_option == "awaiting_listing":
             products = Product.objects.filter(approved=False)
             request.session["selection"] = "awaiting_listing"
@@ -174,7 +217,7 @@ def product_list(request):
         for inv in inventory:
             total_stock += inv.stock
         product.total_stock = total_stock
-    
+
     context = {"products": products, "current_page": current_page, "title": title}
     return render(request, "muladmin/product-list.html", context=context)
 
@@ -241,3 +284,14 @@ def add_account(request):
                 messages.error(request, error_message)
 
     return render(request, "muladmin/add-account.html", context)
+
+
+@admin_login_required
+def order_list(request):
+    title = "Orders"
+    current_page = "order_list"
+    order_items = OrderItem.objects.all()
+    request.session["selection"] = "all"
+
+    context = {"order_items": order_items, "current_page": current_page, "title": title}
+    return render(request, "muladmin/order-list.html", context=context)

@@ -12,7 +12,7 @@
                     <h2>Featured Products</h2>
                 </div>
             </div>
-            <div class="row">
+            <div class="row display-flex">
                 {% for product in products %}
                     <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
                         {% include "home/includes/product.html" %}
@@ -28,5 +28,14 @@
 {% endblock content %}
 
 {% block extra_styles %}
-
+<style>
+    .row.display-flex {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.row.display-flex > [class*='col-'] {
+		display: flex;
+		flex-direction: column;
+	}
+</style>
 {% endblock extra_styles %}

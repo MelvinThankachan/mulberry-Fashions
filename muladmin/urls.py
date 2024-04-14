@@ -10,7 +10,10 @@ urlpatterns = [
     path('categories/', views.category_list, name="category_list"),
     path('add-category/', views.add_category, name="add_category"),
     path('edit-category/<slug>', views.edit_category, name="edit_category"),
+    path('delete-category/<slug>', views.delete_category, name="delete_category"),
+    path('restore-category/<slug>', views.restore_category, name="restore_category"),
     path('product-list/', views.product_list, name="product_list"),
     path('product-approval/<pk>/', views.product_approval, name="product_approval"),
     path('add-account/', views.add_account, name="add_account"),
+    path('order-list/', views.order_list, name="order_list"),
 ]

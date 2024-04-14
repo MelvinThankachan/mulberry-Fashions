@@ -23,7 +23,7 @@
 				<!-- Cart -->
 				<ul class="top-menu text-right list-inline">
 					<li class="dropdown cart-nav dropdown-slide">
-						<a href="#!" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i
+						<a href="{% url "cart" %}" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i
 								class="tf-ion-android-cart"></i>Cart</a>
 						<div class="dropdown-menu cart-dropdown">
 							<!-- Cart Item -->
@@ -62,8 +62,8 @@
 								<span class="total-price">$1799.00</span>
 							</div>
 							<ul class="text-center cart-buttons">
-								<li><a href="cart.html" class="btn btn-small">View Cart</a></li>
-								<li><a href="checkout.html" class="btn btn-small btn-solid-border">Checkout</a></li>
+								<li><a href="{% url "cart" %}" class="btn btn-small">View Cart</a></li>
+								<li><a href="{% url "checkout" %}" class="btn btn-small btn-solid-border">Checkout</a></li>
 							</ul>
 						</div>
 
@@ -71,12 +71,14 @@
 
 					<!-- Search -->
 					<li class="dropdown search dropdown-slide">
-						<a href="#!" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i
-								class="tf-ion-ios-search-strong"></i> Search</a>
-						<ul class="dropdown-menu search-dropdown">
-							<li>
-								<form action="post"><input type="search" class="form-control" placeholder="Search..."></form>
-							</li>
+						<a href="#!" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i class="tf-ion-ios-search-strong"></i> Search</a>
+						<ul class="dropdown-menu search-dropdown d-flex justify-content-center">
+							<form method="get" action="{% url 'shop' %}">
+								{% csrf_token %}	
+								<li>
+									<input type="search" class="form-control" name="search" placeholder="Search...">
+								</li>
+							</form>
 						</ul>
 					</li><!-- / Search -->
 
@@ -187,10 +189,10 @@
 									<ul>
 										<li class="dropdown-header">Dashboard</li>
 										<li role="separator" class="divider"></li>
-										<li><a href="dashboard.html">User Interface</a></li>
-										<li><a href="order.html">Orders</a></li>
-										<li><a href="address.html">Address</a></li>
-										<li><a href="profile-details.html">Profile Details</a></li>
+										<li><a href="{% url "customer_dashboard" %}">User Interface</a></li>
+										<li><a href="{% url "customer_orders" %}">Orders</a></li>
+										<li><a href="{% url "customer_address" %}">Address</a></li>
+										<li><a href="{% url "customer_profile" %}">Profile Details</a></li>
 									</ul>
 								</div>
 
@@ -238,8 +240,7 @@
 								class="tf-ion-ios-arrow-down"></span></a>
 						<ul class="dropdown-menu">
 							{% if user.is_authenticated and user.is_customer%}
-							<li> Hi {{user.first_name}} !</li>
-							<li><a href="typography.html">Dashboard</a></li>
+							<li><a href="{% url "customer_dashboard" %}">Dashboard</a></li>
 							<li><a href="{% url "customer_logout" %}">Logout</a></li>
 							{% else %}
 							<li><a href="{% url "customer_login" %}">LogIn</a></li>

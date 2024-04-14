@@ -175,6 +175,13 @@
                     <span class="nav-text">Products</span> 
                   </a>
                 </li>
+
+                <li class="{% if current_page == "order_list" %}active{% endif %}">
+                  <a href="{% url 'order_list' %}">
+                    <i class="mdi mdi mdi-truck"></i>
+                    <span class="nav-text">Orders</span> 
+                  </a>
+                </li>
                 
                 <li class="{% if current_page == "add_account" %}active{% endif %}">
                   <a href="{% url 'add_account' %}">

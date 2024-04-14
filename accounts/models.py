@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-# Create your models here.
-
 
 class AccountManager(BaseUserManager):
     def create_user(self, first_name, last_name, email, password=None):
@@ -40,7 +38,8 @@ class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=254, unique=True)
-    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    mobile = models.CharField(max_length=10, null=True, blank=True)
+    profile_image = models.ImageField(upload_to="images/user/customer/profile_image", null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
@@ -66,9 +65,6 @@ class Account(AbstractBaseUser):
 
 
 class Customer(Account):
-    # bag_id = models.ManyToManyField("customer.Bag")
-    # fav_id = models.ManyToManyField("customer.favorites")
-    # address_id = models.ManyToManyField("customer.address")
     approved = models.BooleanField(default=False)
 
     def __str__(self):

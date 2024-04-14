@@ -1,9 +1,10 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from accounts.models import Vendor
+from mulberry.models import SoftDeleteModel
 
 
-class Category(models.Model):
+class Category(SoftDeleteModel):
     name = models.CharField(max_length=50, unique=True)
     image = models.ImageField(upload_to="images/categories")
     description = models.TextField(max_length=511, null=True, blank=True)
@@ -16,7 +17,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
 
-class Product(models.Model):
+class Product(SoftDeleteModel):
     brand_name = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=511, null=True, blank=True)
@@ -27,7 +28,9 @@ class Product(models.Model):
     subcategories = models.ManyToManyField(
         Category, related_name="subcategory_products", blank=True
     )
-    mrp = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
+    mrp = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)], null=True, blank=True
+    )
     is_available = models.BooleanField(default=True)
     slug = models.SlugField(unique=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,0 +1,171 @@
+{% extends "home/base.html" %}
+
+{% load static %}
+
+{% block content %}
+{% include 'home/includes/navigation.html' %}
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="content">
+                    <h1 class="page-name">Orders</h1>
+                    <ol class="breadcrumb">
+                        <li><a href="{% url "home" %}">Home</a></li>
+                        <li><a href="">Profile</a></li>
+                        <li class="active"><a href="">Orders</a></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div> 
+</section>
+
+
+    <section class="user-dashboard page-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="list-inline dashboard-menu text-center">
+                        <li><a href="{% url "customer_dashboard" %}">Dashboard</a></li>
+                        <li><a class="active" href="{% url "customer_orders" %}">Orders</a></li>
+                        <li><a href="{% url "customer_address" %}">Address</a></li>
+                        <li><a href="{% url "customer_profile" %}">Profile Details</a></li>      
+                    </ul>
+                    <div class="dashboard-wrapper user-dashboard">
+                        {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        {% comment %} <th>Delivery Address</th> {% endcomment %}
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total Price</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                        <tr>
+                                            <td>#{{ order.id }}</td>
+                                            {% comment %} <td>{{ order.address|linebreaksbr }}</td> {% endcomment %}
+                                            <td>{{ order.created_at|date:"Y-m-d" }}</td>
+                                            <td>
+                                                {% for order_item in order.order_items %}
+                                                    <p>{{ order_item }}</p>
+                                                {% endfor %}
+                                            </td>
+                                            <td> ₹ {{ order.total_amount }}</td>
+                                            <td><center>
+                                                <a href="#" data-toggle="modal" data-target="#order-view-modal-{{ order.id }}" class="btn  btn-small btn-round-full">Order Summary</a>
+                                            </center></td>
+                                        </tr>
+
+                                        <!--order view Modal -->
+                                        <div class="modal product-modal fade" id="order-view-modal-{{ order.id }}">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <i class="tf-ion-close"></i>
+                                            </button>
+                                            <div class="modal-dialog " role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="product-checkout-details">
+                                                                <div class="block">
+                                                                    <h1 class="widget-title">Order Summary</h1>
+                                                                    <hr>
+                                                                    {% for order_item in order.order_items %}
+                                                                        <div class="media product-card">
+                                                                            <a class="pull-left" href="{% url "product_page" order_item.product.slug %}">
+                                                                            <img class="media-object" src="{{ order_item.product.primary_image.image.url }}" alt="Image" />
+                                                                            </a>
+                                                                            <div class="media-body">
+                                                                            <h4 class="media-heading"><a href="{% url "product_page" order_item.product.slug %}">{{ order_item.product.brand_name }}</a></h4>
+                                                                            <h6 class="media-heading"><a href="{% url "product_page" order_item.product.slug %}">{{ order_item.product.name }}</a></h6>
+                                                                            <p class="price">{{ order_item.quantity }} x ₹ {{ order_item.inventory.price }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                    <hr>
+                                                                    <ul class="summary-prices">
+                                                                        <li>
+                                                                            <span>Subtotal:</span>
+                                                                            <span class="price">₹ {{ order.total_amount }}</span>
+                                                                        </li>
+                                                                        <li>
+                                                                            <span>Shipping:</span>
+                                                                            <span>Free</span>
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div class="summary-total">
+                                                                        <span>Total</span>
+                                                                        <span>₹ {{ order.total_amount }}</span>
+                                                                    </div>
+                                                                    <br>
+                                                                    {% if order.status != "cancelled" and order.status != "delivered" %}
+                                                                        <div>
+                                                                            <button data-toggle="modal" data-target="#cancel-order-modal-{{ order.id }}" type="button" class="btn btn-danger pull-right">Cancel order</button>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div><!--  order view modal -->
+
+
+                                        <!-- candcel order Modal -->
+                                        <div class="modal product-modal fade" id="cancel-order-modal-{{ order.id }}">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <i class="tf-ion-close"></i>
+                                            </button>
+                                            <div class="modal-dialog " role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                        <h4 class="modal-title text-center">Do you want to cancel this order?</h4>
+                                                        <div class="modal-body">
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <a href="{% url "cancel_order" order.id %}" type="button" class="btn btn-danger">Cancel</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div><!-- cancel order view modal -->
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p>No Orders Yet. Shop Now!</p>
+                        <hr>
+                        <a href="{% url "shop" %}" class="btn btn-main">Shop NOw</a >
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+{% include 'home/includes/footer.html' %}
+{% endblock content %}
+
+{% block extra_styles %}
+
+{% endblock extra_styles %}
+
+<script>
+    $(document).ready(function(){
+        $('.btn').click(function(){
+            var modalId = $(this).data('target');
+            $(modalId).modal('show');
+        });
+    });
+</script>

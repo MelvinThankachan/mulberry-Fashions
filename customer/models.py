@@ -1,3 +1,86 @@
 from django.db import models
-# Create your models here.
+from product.models import Product, Inventory
+from accounts.models import Customer
+from django.core.validators import MinValueValidator, MaxValueValidator
 
+
+class Cart(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.customer.first_name}'s Cart"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+
+    def __str__(self):
+        return f"{self.quantity} of {self.product.name}"
+
+
+class Address(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    mobile = models.PositiveIntegerField(
+        validators=[MinValueValidator(1000000000), MaxValueValidator(9999999999)]
+    )
+    pincode = models.PositiveIntegerField(
+        validators=[MinValueValidator(100000), MaxValueValidator(999999)]
+    )
+    state = models.CharField(max_length=255)
+    building = models.CharField(max_length=255)
+    street = models.CharField(max_length=255)
+    city = models.CharField(max_length=255, null=True, blank=True)
+    district = models.CharField(max_length=255)
+    address_text = models.TextField(null=True, blank=True) #to store the whole address as text
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name}, {self.building}, {self.street}, {self.district}, {self.state}"
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "pending"),
+        ("confirmed", "confirmed"),
+        ("shipped", "Shipped"),
+        ("delivered", "Delivered"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    address = models.TextField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Order {self.id}"
+
+
+class OrderItem(models.Model):
+    
+    STATUS_CHOICES = [
+        ("pending", "pending"),
+        ("confirmed", "confirmed"),
+        ("shipped", "Shipped"),
+        ("delivered", "Delivered"),
+        ("cancelled", "Cancelled"),
+    ]
+    order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.brand_name} {self.product.name}"

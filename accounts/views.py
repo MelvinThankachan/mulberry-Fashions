@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .utils import send_otp, pyotp
 from datetime import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 # Customer Login, Signup and logout views
@@ -24,7 +26,9 @@ def customer_signup(request):
             return redirect("customer_signup")
 
         if Customer.objects.filter(email=email).exists():
-            error_message = "Email already registered. Please log in or use a different email."
+            error_message = (
+                "Email already registered. Please log in or use a different email."
+            )
             messages.error(request, error_message)
         else:
             try:
@@ -90,7 +94,8 @@ def customer_login(request):
             return redirect("customer_login")
 
         login(request, authenticated_user)
-        return redirect("home")
+        target_url = request.session.pop("customer_target_url", reverse("home"))
+        return HttpResponseRedirect(target_url)
 
     title = "LogIn"
     context = {"title": title}
@@ -120,7 +125,9 @@ def vendor_signup(request):
             return redirect("vendor_signup")
 
         if Vendor.objects.filter(email=email).exists():
-            error_message = "Email already registered. Please log in or use a different email."
+            error_message = (
+                "Email already registered. Please log in or use a different email."
+            )
             messages.error(request, error_message)
         else:
             try:
@@ -185,7 +192,8 @@ def vendor_login(request):
             return redirect("vendor_login")
 
         login(request, authenticated_user)
-        return redirect("vendor_dashboard")
+        target_url = request.session.pop("vendor_target_url", reverse("vendor_dashboard"))
+        return HttpResponseRedirect(target_url)
 
     title = "Vendor LogIn"
     context = {"title": title}
@@ -225,7 +233,8 @@ def admin_login(request):
             return redirect("admin_login")
 
         login(request, authenticated_user)
-        return redirect("admin_dashboard")
+        target_url = request.session.pop("admin_target_url", reverse("admin_dashboard"))
+        return HttpResponseRedirect(target_url)
 
     return render(request, "muladmin/admin-login.html")
 
@@ -266,7 +275,6 @@ def customer_activation(request):
                     request.session.pop("otp_secret_key", None)
                     request.session.pop("otp_valid_till", None)
                     request.session.pop("otp_counter", None)
-
 
                     success_message = "Your email is verified. Please Login now"
                     messages.success(request, success_message)

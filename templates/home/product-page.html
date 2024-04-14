@@ -60,12 +60,13 @@
                 </div>
                 <div class="col-md-7">
                     <div class="single-product-details">
+                    <form method="post" action="{% url "add_to_cart" product.id %}">
+                        {% csrf_token %}
                         <h2><strong>{{ product.brand_name }}</strong><br>{{ product.name }}</h2>
                         <hr>
                         <div class="product-size">
                             <span>Size:</span>
-                            <select id="size-select" class="form-control" name="size">
-                                <option disabled selected hidden>Size</option>
+                            <select id="size-select" class="form-control" name="product-size">
                                 {% for inventory_item in inventory %}
                                     <option value="{{ inventory_item.size }}" data-price="{{ inventory_item.price }}">{{ inventory_item.size }}</option>
                                 {% endfor %}
@@ -91,9 +92,10 @@
                             <del>MRP: ₹ {{ product.mrp }}</del>
                         </span>
                         <br>
-                        <a href="cart.html" class="btn btn-main mt-20">Add To Cart</a>
+                        <button type="submit" class="btn btn-main mt-20">Add To Cart</button>
                         <hr class="bg-dark">
                         <p class="product-description mt-20">{{ product.description|linebreaksbr }}</p><br>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -179,7 +181,7 @@
     </section>
 
     {# {% include "home/includes/related-products.html" %} #}
-    {# {% include "'includes/footer.html" %} #}
+    {% include "home/includes/footer.html" %}
 {% endblock content %}
 
 {% block extra_scripts %}

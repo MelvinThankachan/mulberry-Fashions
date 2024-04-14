@@ -21,8 +21,8 @@
             <!-- User Image -->
             <div class="profile-thumb">
               <img src="
-              {% if user.profile_image %}
-              {{ user.profile_image.url }}
+              {% if user.profile_pic %}
+              {{ user.image.url }}
               {% else %}
               {% static "vendor/images/user/default_profile_picture.png" %}
               {% endif %}
@@ -37,9 +37,9 @@
           <!-- Dashboard Links -->
           <div class="widget user-dashboard-menu">
             <ul>
-              <li class="active"><a href="dashboard-my-ads.html"><i class="fa fa-user"></i>My Products<span>{{products_count}}</span></a></li>
-              <li><a href="{% url "vendor_orders" %}"><i class="fa fa-bookmark-o"></i> Orders
-                <span>5</span></a></li>
+              <li><a href="dashboard-my-ads.html"><i class="fa fa-user"></i>My Products<span>{{products_count}}</span></a></li>
+              <li  class="active"><a href="{% url "vendor_orders" %}"><i class="fa fa-bookmark-o"></i> Orders
+                  <span>5</span></a></li>
               <li><a href="dashboard-archived-ads.html"><i class="fa fa-file-archive-o"></i>Archived Products
                   <span>12</span></a></li>
               <li><a href="dashboard-pending-ads.html"><i class="fa fa-bolt"></i> Pending Approval<span>23</span></a>
@@ -56,55 +56,64 @@
         </div>
       </div>
       <div class="col-lg-9">
-        <!-- Recently Favorited -->
         <div class="widget dashboard-container my-adslist">
-          <h3 class="widget-header">My Products</h3>
+          <h3 class="widget-header">Recieved Orders</h3>
+          {% if order_items %}
+          <h3 class="widget-header">Orders Recieved</h3>
+          {% endif %}
           <table class="table table-responsive product-dashboard-table">
             <thead>
               <tr>
                 <th>Image</th>
                 <th>Product Title</th>
-                <th class="text-center">Category</th>
+                <th class="text-center">Quantity</th>
                 <th class="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
-              {% for product in products %}
+              {% for order_item in order_items %}
               
                 <tr>
                   <td class="product-thumb">
-                    {% if product.primary_image %}
-                      <img width="80px" height="auto" src="{{ product.primary_image.image.url }}" alt="Product image"></td>
+                    {% if order_item.product.primary_image %}
+                      <img width="80px" height="auto" src="{{ order_item.product.primary_image.image.url }}" alt="Product image">
                     {% endif %}
-                  <td class="product-details">
-                    <h3 class="title"><strong>{{product.brand_name}}</strong></h3>
-                    <h3 class="title">{{product.name}}</h3>
-                    <span class=""><strong>Ad ID:</strong>{{product.id}}</span>
-                    <span class=""><strong>Brand:</strong>{{product.brand_name}}</span>
-                  <span class=""><strong>Stock Left:</strong>{{product.total_stock}}</span>
-                    <span><strong>Posted on:</strong><time>{{product.created_at}}</time></span>
-                    <span class="{% if product.is_available %}status active{% endif %}"><strong>Status</strong>{% if product.is_available %}Active{% else %}Inactive{% endif %}</span>
                   </td>
-                  <td class="product-category"><span class="categories">{{product.main_category}}</span></td>
-                  <td class="action" data-title="Action">
-                    <div class="">
-                      <ul class="list-inline justify-content-center">
-                        <li class="list-inline-item">
-                          <a data-toggle="tooltip" data-placement="top" title="view" class="view" href="category.html">
-                            <i class="fa fa-eye"></i>
-                          </a>
-                        </li>
-                        <li class="list-inline-item">
-                          <a class="edit" data-toggle="tooltip" data-placement="top" title="Edit" href="{% url "edit_product" product.slug %}">
-                            <i class="fa fa-pencil"></i>
-                          </a>
-                        </li>
-                        <li class="list-inline-item">
-                          <a class="delete" data-toggle="tooltip" data-placement="top" title="Delete" href="dashboard.html">
-                            <i class="fa fa-trash"></i>
-                          </a>
-                        </li>
-                      </ul>
+                  <td class="product-details">
+                    <h3 class="title"><strong>{{order_item.product.brand_name}}</strong></h3>
+                    <h3 class="title">{{order_item.product.name}}</h3>
+                    <span class=""><strong>Order ID:</strong>{{order_item.id}}</span>
+                    <span class=""><strong>Size:</strong>{{order_item.inventory.size}}</span><span></span>
+                    {% if order_item.status == "pending" %}
+                        <span class="status text-warning"><strong>Status:</strong>Pending</span></span>
+                    {% elif order_item.status == "confirmed" %}
+                        <span class="status text-danger"><strong>Status:</strong>Confirmed</span></span>
+                    {% elif order_item.status == "cancelled" %}
+                        <span class="status text-danger"><strong>Status:</strong>Cancelled</span></span>
+                    {% elif order_item.status == "shipped" %}
+                        <span class="status text-primary"><strong>Status:</strong>Shipped</span></span>
+                    {% elif order_item.status == "delivered" %}
+                        <span class="status text-success"><strong>Status:</strong>Delivered</span></span>
+                    {% endif %}
+                  </td>
+                  <td class="product-category"><span class="categories">{{order_item.quantity}}</span></td>
+                  <td class="" data-title="Action">
+                    <div class=""><center>
+                        <form method="post" action="{% url "vendor_order_status" order_item.id %}">
+                            {% csrf_token %}
+                                {% if order_item.status == "pending" %}
+                                    <button type="submit" class="btn btn-primary" name="confirm">Confirm</a>
+                                {% elif order_item.status == "confirmed" %}
+                                    <button type="submit" class="btn btn-info" name="ship">Ship</a>
+                                {% elif order_item.status == "shipped" %}
+                                    <button type="submit" class="btn btn-success" name="deliver">Deliver</a>
+                                {% elif order_item.status == "cancelled" %}
+                                <button class="btn btn-danger disabled">Cancelled</a>
+                                {% elif order_item.status == "delivered" %}
+                                    <button class="btn btn-success disabled">Delivered</a>
+                                {% endif %}
+                        </form>
+                        </center>
                     </div>
                   </td>
                 </tr>
