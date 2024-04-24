@@ -71,28 +71,28 @@
                   <h4 class="widget-title">Select Payment option</h4>
                   <p>Select your payment method</p>
                   <br>
-                        <div class="form-check">
+                     <div class="row">
+                        <div class="form-check col-md-6" style="margin-bottom:30px;">
+                           <input class="form-check-input" type="radio" name="payment_method" id="payment-razorpay" value="razorpay" required>
+                           <label class="form-check-label" for="payment-razorpay">
+                              <img class="payment-image" src="{% static "images\razorpay.png" %}" alt="">
+                           </label>
+                        </div>
+                        <div class="form-check col-md-6" style="margin-bottom:30px;">
+                           <input class="form-check-input" type="radio" name="payment_method" id="payment-paypal" value="paypal" required>
+                           <label class="form-check-label" for="payment-paypal">
+                              <img class="payment-image" src="{% static "images\paypal.png" %}" alt="">
+                           </label>
+                        </div>
+                        <div class="form-check col-md-6" style="margin-bottom:30px;">
                            <input class="form-check-input" type="radio" name="payment_method" id="payment-cod" value="cod" required>
                            <label class="form-check-label" for="payment-cod">
-                           COD (Only COD available for your location!)
+                              <img class="payment-image" src="{% static "images\cash-on-delivery.png" %}" alt="">
                            </label>
                         </div>
-                        <br>
-                        <div class="form-check">
-                           <input class="form-check-input" type="radio" name="payment_method" id="payment-card" value="option3" disabled required>
-                           <label class="form-check-label" for="payment-card">
-                              Card
-                           </label>
-                        </div>
-                        <br>
-                        <div class="form-check">
-                           <input class="form-check-input" type="radio" name="payment_method" id="payment-upi" value="option3" disabled required>
-                           <label class="form-check-label" for="payment-upi">
-                              UPI
-                           </label>
-                        </div>
-                        <br>
-                        <button type="submit" class="btn btn-main mt-20">Place Order</button>
+                     </div>
+                  <br>
+                  <button type="submit" class="btn btn-main mt-20">Place Order</button>
                   </form>
                </div>
                <div class="block billing-details">
@@ -244,6 +244,12 @@
     .row.display-flex > [class*='col-'] {
       display: flex;
       flex-direction: column;
+    }
+
+    .payment-image {
+      width: 250px;
+      height: 50px;
+      object-fit: cover;
     }
 </style>
 

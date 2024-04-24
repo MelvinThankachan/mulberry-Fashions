@@ -120,6 +120,8 @@
                                                         <span class="label label-warning">Pending</span>
                                                     {% elif order.status == "cancelled" %}
                                                         <span class="label label-danger">Cancelled</span>
+                                                    {% elif order_item.status == "confirmed" %}
+                                                    <span class="label label-info">Confirmed</span>
                                                     {% elif order.status == "shipped" %}
                                                         <span class="label label-primary">Shipped</span>
                                                     {% elif order.status == "delivered" %}

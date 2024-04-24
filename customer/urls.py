@@ -19,4 +19,7 @@ urlpatterns = [
     path('default-address/<address_id>/', views.default_address, name="default_address"),
     path('place_order', views.place_order, name="place_order"),
     path('cancel-order/<order_id>/', views.cancel_order, name="cancel_order"),
+    path('cancel-order-item/<order_item_id>/', views.cancel_order_item, name="cancel_order_item"),
+    path('razorpay-order-creation', views.razorpay_order_creation, name="razorpay_order_creation"),
+	path('razorpay-paymenthandler/', views.razorpay_paymenthandler, name='razorpay_paymenthandler'),
 ]

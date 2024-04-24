@@ -1,0 +1,171 @@
+{% extends "vendor/vendor-base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+{% include "vendor/includes/navigation.html" %}
+
+
+<!--===================================
+=            Store Section            =
+====================================-->
+<section class="section bg-gray">
+	<!-- Container Start -->
+	<div class="container">
+		<div class="row">
+			<!-- Left sidebar -->
+			<div class="col-lg-12">
+				<div class="product-details">
+					<h1 class="product-title">Order Details</h1>
+					<hr>
+					<div class="col-lg-12">
+						<div class="widget dashboard-container my-adslist row">
+							<div class=col-6>
+								<h4>Order ID:</h4>
+								<p>{{order.id}}</p>
+								<h4>Payment Method:</h4>
+								<p>COD</p>
+							</div>
+							<div class=col-6>
+								<h4>Delivery Address:</h4>
+								<p>{{ order.address|linebreaksbr }}</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12">
+						<div class="widget dashboard-container my-adslist">
+							<h3 class="widget-header">Products</h3>
+							<table class="table table-responsive product-dashboard-table">
+								<thead>
+								<tr>
+									<th>Image</th>
+									<th>Product Details</th>
+									<th class="text-center">Quantity</th>
+									<th class="text-center">Action</th>
+								</tr>
+								</thead>
+								<tbody>
+								{% for order_item in order_items %}
+								
+									<tr>
+									<td class="product-thumb">
+										{% if order_item.product.primary_image %}
+										<img width="80px" height="auto" src="{{ order_item.product.primary_image.image.url }}" alt="Product image"></td>
+										{% endif %}
+									<td class="product-details">
+										<h3 class="title"><strong>{{order_item.product.brand_name}}</strong></h3>
+										<h3 class="title">{{order_item.product.name}}</h3>
+										<span class=""><strong>Product ID:</strong>{{order_item.product.id}}</span>
+										<span class=""><strong>Size:</strong>{{order_item.inventory.size}}</span>
+										<span><strong>Posted on:</strong><time>{{order_item.product.created_at}}</time></span>
+										{% if order_item.status == "pending" %}
+											<span class="status text-warning"><strong>Status:</strong>Pending</span></span>
+										{% elif order_item.status == "confirmed" %}
+											<span class="status text-info"><strong>Status:</strong>Confirmed</span></span>
+										{% elif order_item.status == "cancelled" %}
+											<span class="status text-danger"><strong>Status:</strong>Cancelled</span></span>
+										{% elif order_item.status == "shipped" %}
+											<span class="status text-primary"><strong>Status:</strong>Shipped</span></span>
+										{% elif order_item.status == "delivered" %}
+											<span class="status text-success"><strong>Status:</strong>Delivered</span></span>
+										{% endif %}
+									</td>
+									<td class="product-category"><span class="categories">{{order_item.quantity}}</span></td>
+									<td class="action" data-title="Action">
+										<div class="">
+										<ul class="list-inline justify-content-center">
+											{% if order_item.status != "delivered" and order_item.status != "cancelled" %}
+											<form action="{% url "vendor_order_status" order_item.id %}" method="post">
+												{% csrf_token %}
+												<div>
+													<select name="status">
+														<option disabled selected>Select Action</option>
+														{% if order_item.status == "pending" %}
+															<option value="Confirm">Confirm Item</option>
+															<option value="Cancel">Cancel Item</option>
+														{% elif order_item.status == "confirmed" %}
+															<option value="Ship">Ship Item</option>
+															<option value="Cancel">Cancel Item</option>
+														{% elif order_item.status == "shipped" %}
+															<option value="Deliver">deliver Item</option>
+															<option value="Cancel">Cancel Item</option>
+														{% endif %}
+													</select>
+												</div>
+												<br>
+												<li class="list-inline-item">
+												<button type="submit" title="submit" class="view">
+													<i class="fa fa-check"></i>
+												</button>
+												</li>
+											</form>
+											{% else %}
+												{% if order_item.status == "delivered" %}
+													<p class="text-success">Item Delivered</p>
+												{% elif order_item.status == "cancelled" %}
+													<p class="text-success">Item Cancelled</p>
+												{% endif %}
+											{% endif %}
+										</ul>
+										</div>
+									</td>
+									</tr>
+					
+								{% endfor %}
+								</tbody>
+							</table>
+						</div>
+				
+						{% comment %} <!-- pagination -->
+						{% if products.has_other_pages %}
+						  <div class="pagination justify-content-center">
+							  <nav aria-label="Page navigation example">
+								  <ul class="pagination">
+									  {% if products.has_previous %}
+										  <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}">Prev</a></li>
+										  {% if products.number > 2 %}
+											  <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+										  {% endif %}
+									  {% endif %}
+				
+									  {% for page_number in products.paginator.page_range %}
+										  {% if page_number >= products.number|add:"-1" and page_number <= products.number|add:"1" %}
+											  {% if products.number == page_number %}
+												  <li class="page-item active"><a class="page-link" href="#">{{ page_number }}</a></li>
+											  {% else %}
+												  <li class="page-item"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
+											  {% endif %}
+										  {% elif page_number == products.number|add:"-3" or page_number == products.number|add:"3" %}
+											  <li class="page-item disabled"><a class="page-link">...</a></li>
+										  {% endif %}
+									  {% endfor %}
+				
+									  {% if products.has_next %}
+										  {% if products.number < products.paginator.num_pages|add:"-1" %}
+											  <li class="page-item"><a class="page-link" href="?page={{ products.paginator.num_pages }}">{{ products.paginator.num_pages }}</a></li>
+										  {% endif %}
+										  <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}">Next</a></li>
+									  {% endif %}
+								  </ul>
+							  </nav>
+						  </div>
+						{% endif %} {% endcomment %}
+						<!-- pagination -->
+				
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Container End -->
+</section>
+
+
+{% endblock content %}
+
+
+{% block extra_styles %}
+
+
+{% endblock extra_styles %}

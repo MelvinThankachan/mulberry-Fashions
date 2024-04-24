@@ -83,8 +83,22 @@
                                                                             </a>
                                                                             <div class="media-body">
                                                                             <h4 class="media-heading"><a href="{% url "product_page" order_item.product.slug %}">{{ order_item.product.brand_name }}</a></h4>
+                                                                            <p class="price pull-right">Order status:
+                                                                                {% if order_item.status == "pending" %}
+                                                                                    <span class="label label-warning">Pending</span>
+                                                                                {% elif order_item.status == "cancelled" %}
+                                                                                    <span class="label label-danger">Cancelled</span>
+                                                                                {% elif order_item.status == "confirmed" %}
+                                                                                    <span class="label label-info">Confirmed</span>
+                                                                                {% elif order_item.status == "shipped" %}
+                                                                                    <span class="label label-primary">Shipped</span>
+                                                                                {% elif order_item.status == "delivered" %}
+                                                                                    <span class="label label-success">Delivered</span>
+                                                                                {% endif %}
+                                                                            </p>
                                                                             <h6 class="media-heading"><a href="{% url "product_page" order_item.product.slug %}">{{ order_item.product.name }}</a></h6>
                                                                             <p class="price">{{ order_item.quantity }} x ₹ {{ order_item.inventory.price }}</p>
+                                                                            <p class="price">Size: {{ order_item.inventory.size }}</p>
                                                                             </div>
                                                                         </div>
                                                                     {% endfor %}
@@ -103,12 +117,31 @@
                                                                         <span>Total</span>
                                                                         <span>₹ {{ order.total_amount }}</span>
                                                                     </div>
-                                                                    <br>
-                                                                    {% if order.status != "cancelled" and order.status != "delivered" %}
-                                                                        <div>
-                                                                            <button data-toggle="modal" data-target="#cancel-order-modal-{{ order.id }}" type="button" class="btn btn-danger pull-right">Cancel order</button>
+                                                                    <hr>
+                                                                    <div>
+                                                                        <div class="delivery-address pull-left">
+                                                                            <p class="h4">Delivery Address:</p>
                                                                         </div>
-                                                                    {% endif %}
+                                                                        <div class="delivery-address  pull-left" style="margin:1rem;">
+                                                                            <p>{{order.address|linebreaksbr}}</p>
+                                                                        </div>
+                                                                        <div class="delivery-address pull-left" style="margin:1rem;">
+                                                                            <p class="h4">Payment Method:</p>
+                                                                            <p class="h4">Order Date:</p>
+                                                                        </div>
+                                                                        <div class="delivery-address  pull-left" style="margin:1rem; padding-top:1rem;">
+                                                                            <p>COD</p>
+                                                                            <p>{{ order.created_at|date:"Y-m-d" }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br>
+                                                                    <div>
+                                                                        {% if order.status != "cancelled" and order.status != "delivered" %}
+                                                                            <div>
+                                                                                <button data-toggle="modal" data-target="#cancel-order-modal-{{ order.id }}" type="button" class="btn btn-danger pull-right">Cancel order</button>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>

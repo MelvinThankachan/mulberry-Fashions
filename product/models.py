@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from accounts.models import Vendor
-from mulberry.models import SoftDeleteModel
+from mulberry.models import SoftDeleteModel, ApprovedProductManager
 
 
 class Category(SoftDeleteModel):
@@ -36,6 +36,8 @@ class Product(SoftDeleteModel):
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified_at = models.DateTimeField(auto_now=True)
     approved = models.BooleanField(default=False)
+
+    approved_objects = ApprovedProductManager()
 
     def __str__(self):
         return f"{self.brand_name} {self.name}"

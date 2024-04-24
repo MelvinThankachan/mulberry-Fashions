@@ -153,3 +153,14 @@ EMAIL_USE_TSL = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "online.mulberryfashions@zohomail.in"
 EMAIL_HOST_PASSWORD = "R304pZ8DUVGETytO"
+
+
+# RazorPay credentials
+
+RAZOR_KEY_ID = "rzp_test_iZ19mfmqcCWhFx"
+RAZOR_KEY_SECRET = "AgyQbM4WqWQj1hvpHZ9GtT5C"
+
+
+# To allow RazorPay Pop-up to restrict comment the below line.
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"

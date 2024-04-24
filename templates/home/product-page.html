@@ -68,7 +68,7 @@
                             <span>Size:</span>
                             <select id="size-select" class="form-control" name="product-size">
                                 {% for inventory_item in inventory %}
-                                    <option value="{{ inventory_item.size }}" data-price="{{ inventory_item.price }}">{{ inventory_item.size }}</option>
+                                    <option value="{{ inventory_item.size }}" data-price="{{ inventory_item.price }}" data-stock="{{ inventory_item.stock }}">{{ inventory_item.size }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -81,9 +81,22 @@
                         <div class="product-category">
                             <span>Category:</span>
                             <ul>
-                                <li><a href="product-single.html">{{ product.main_category }}</a></li>
+                                <li><a href="">{{ product.main_category }}</a></li>
                             </ul>
                         </div>
+                        <div class="product-category">
+                            <span>Stock Left:</span>
+                            <ul>
+                                <li><a id="stock-display">Only {{ inventory.0.stock }} left</a></li>
+                            </ul>
+                        </div>
+                        {% for message in messages %}
+                            {% if message.tags == "error" %}
+                                <div class="alert alert-danger alert-common" role="alert">
+                                    <i class="tf-ion-close-circled"></i><span></span>{{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                         <br>
                         <br>
                         <span class="product-price">
@@ -94,6 +107,9 @@
                         <br>
                         <button type="submit" class="btn btn-main mt-20">Add To Cart</button>
                         <hr class="bg-dark">
+                        <h5><strong>Vendor: </strong> {{product.vendor.first_name}} {{product.vendor.last_name}} ( {{product.vendor.email}} )</h5>
+                        <hr class="bg-dark">
+                        <h4>Product summary</h4>
                         <p class="product-description mt-20">{{ product.description|linebreaksbr }}</p><br>
                     </form>
                     </div>
@@ -216,7 +232,9 @@
         var selectedSize = this.value;
         var selectedOption = this.querySelector('option[value="' + selectedSize + '"]');
         var price = selectedOption.getAttribute('data-price');
+        var stock = selectedOption.getAttribute('data-stock');
         document.getElementById('price-display').innerText = 'Price: ₹ ' + price;
+        document.getElementById('stock-display').innerText = 'Only ' + stock + ' left';
     });
 </script>
 {% endblock extra_scripts %}

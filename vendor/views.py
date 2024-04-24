@@ -6,6 +6,7 @@ from django.db.models import Sum
 from django.core.paginator import Paginator
 from customer.models import Order, OrderItem
 from django.http import HttpResponse
+from django.db.models import Q
 
 # Create your views here.
 
@@ -18,7 +19,7 @@ def vendor_login_required(func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_vendor:
             target_url = request.build_absolute_uri()
-            request.session['vendor_target_url'] = target_url
+            request.session["vendor_target_url"] = target_url
             return redirect("vendor_login")
         return func(request, *args, **kwargs)
 
@@ -34,8 +35,6 @@ def dashboard(request):
         .prefetch_related("product_images")
     )
 
-    
-
     products_count = products.count()
 
     for product in products:
@@ -46,7 +45,11 @@ def dashboard(request):
     page = request.GET.get("page")
     paged_products = paginator.get_page(page)
 
-    context = {"products": paged_products, "title": title, "products_count": products_count}
+    context = {
+        "products": paged_products,
+        "title": title,
+        "products_count": products_count,
+    }
 
     return render(request, "vendor/vendor-dashboard.html", context)
 
@@ -203,28 +206,48 @@ def edit_product(request, slug):
     return render(request, "vendor/edit-product.html", context)
 
 
-
 @vendor_login_required
 def vendor_orders(request):
     vendor = Vendor.objects.get(id=request.user.id)
-    order_items = OrderItem.objects.filter(product__vendor=vendor).order_by("-id")
+
+    orders = Order.objects.filter(Q(items__product__vendor=vendor)).distinct()
+
+    order_items = OrderItem.objects.filter(product__vendor = vendor).order_by("-id")
+
+    context = {"orders": orders, "order_items": order_items}
+    return render(request, "vendor/vendor-orders.html", context)
+
+
+@vendor_login_required
+def order_details(request, order_id):
+    order = Order.objects.get(id=order_id)
+    vendor = Vendor.objects.get(id=request.user.id)
+    order_items = OrderItem.objects.filter(order=order, product__vendor=vendor).order_by("-id")
 
     for order_item in order_items:
         order_item.product.primary_image = order_item.product.product_images.filter(priority=1).first()
+    
+    context = {"order": order, "order_items": order_items}
 
-    context = {"order_items": order_items}
-    return render(request, "vendor/vendor-orders.html", context)
+    return render(request, "vendor/vendor-order-details.html", context)
 
 
 @vendor_login_required
 def vendor_order_status(request, order_item_id):
     order_item = OrderItem.objects.get(id=order_item_id)
     if request.method == "POST":
-        if "confirm" in request.POST:
+        status = request.POST.get("status")
+
+        if status == "Confirm":
             order_item.status = "confirmed"
-        if "ship" in request.POST:
+        elif status == "Ship":
             order_item.status = "shipped"
-        if "deliver" in request.POST:
+        elif status == "Deliver":
             order_item.status = "delivered"
+        elif status == "Cancel":
+            order_item.status = "cancelled"
+            order_item.inventory.stock += order_item.quantity
+            order_item.inventory.save()
+        
         order_item.save()
-    return redirect("vendor_orders")
+    return redirect("vendor_order_details", order_id=order_item.order.id)

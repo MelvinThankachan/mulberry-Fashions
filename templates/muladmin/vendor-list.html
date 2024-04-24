@@ -30,7 +30,7 @@
                 <th>Last name</th>
                 <th>Last login</th>
                 <th class="text-center">Active status</th>
-                <th class="text-center">Approve/Ban</th>
+                <th class="text-center">Approve/Block</th>
             </tr>
         </thead>
         
@@ -50,7 +50,7 @@
                 </td>
                 <td class="text-center">
                     {% if vendor.approved %}
-                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-danger">Ban</a>
+                    <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-danger">Block</a>
                     {% else %}
                     <a href="{% url "vendor_approval" vendor.id %}" class="btn-block btn-outline-primary">Approve</a>
                     {% endif %}

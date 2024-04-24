@@ -33,3 +33,8 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ApprovedProductManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(vendor__approved=True)

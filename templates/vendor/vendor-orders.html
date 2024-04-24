@@ -58,62 +58,55 @@
       <div class="col-lg-9">
         <div class="widget dashboard-container my-adslist">
           <h3 class="widget-header">Recieved Orders</h3>
-          {% if order_items %}
-          <h3 class="widget-header">Orders Recieved</h3>
-          {% endif %}
           <table class="table table-responsive product-dashboard-table">
             <thead>
               <tr>
-                <th>Image</th>
-                <th>Product Title</th>
-                <th class="text-center">Quantity</th>
+                <th><center>Order ID</center></th>
+                <th>Items</th>
+                <th class="text-center">Date</th>
                 <th class="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
-              {% for order_item in order_items %}
+              {% for order in orders %}
               
                 <tr>
-                  <td class="product-thumb">
-                    {% if order_item.product.primary_image %}
-                      <img width="80px" height="auto" src="{{ order_item.product.primary_image.image.url }}" alt="Product image">
-                    {% endif %}
+                  <td class="product-thumb"><center>
+                    {{ order.id }}
+                  </center>
                   </td>
                   <td class="product-details">
-                    <h3 class="title"><strong>{{order_item.product.brand_name}}</strong></h3>
-                    <h3 class="title">{{order_item.product.name}}</h3>
-                    <span class=""><strong>Order ID:</strong>{{order_item.id}}</span>
-                    <span class=""><strong>Size:</strong>{{order_item.inventory.size}}</span><span></span>
-                    {% if order_item.status == "pending" %}
-                        <span class="status text-warning"><strong>Status:</strong>Pending</span></span>
-                    {% elif order_item.status == "confirmed" %}
-                        <span class="status text-danger"><strong>Status:</strong>Confirmed</span></span>
-                    {% elif order_item.status == "cancelled" %}
-                        <span class="status text-danger"><strong>Status:</strong>Cancelled</span></span>
-                    {% elif order_item.status == "shipped" %}
-                        <span class="status text-primary"><strong>Status:</strong>Shipped</span></span>
-                    {% elif order_item.status == "delivered" %}
-                        <span class="status text-success"><strong>Status:</strong>Delivered</span></span>
-                    {% endif %}
+                    {% for order_item in order_items %}
+                      {% if order_item.order == order %}
+                        <h3 class="title">&#9679; <strong> {{order_item.product.brand_name}}</strong></h3>
+                        <h3 class="title">{{order_item.product.name}}</h3>
+                        <span class=""><strong>Quantity:</strong>{{order_item.quantity}}</span>
+                        <span class=""><strong>Size:</strong>{{order_item.inventory.size}}</span><span></span>
+                        {% if order_item.status == "pending" %}
+                            <span class="status text-warning"><strong>Status:</strong>Pending</span></span>
+                        {% elif order_item.status == "confirmed" %}
+                            <span class="status text-info"><strong>Status:</strong>Confirmed</span></span>
+                        {% elif order_item.status == "cancelled" %}
+                            <span class="status text-danger"><strong>Status:</strong>Cancelled</span></span>
+                        {% elif order_item.status == "shipped" %}
+                            <span class="status text-primary"><strong>Status:</strong>Shipped</span></span>
+                        {% elif order_item.status == "delivered" %}
+                            <span class="status text-success"><strong>Status:</strong>Delivered</span></span>
+                        {% endif %}
+                        <br>
+                      {% endif %}
+                    {% endfor %}
                   </td>
-                  <td class="product-category"><span class="categories">{{order_item.quantity}}</span></td>
-                  <td class="" data-title="Action">
-                    <div class=""><center>
-                        <form method="post" action="{% url "vendor_order_status" order_item.id %}">
-                            {% csrf_token %}
-                                {% if order_item.status == "pending" %}
-                                    <button type="submit" class="btn btn-primary" name="confirm">Confirm</a>
-                                {% elif order_item.status == "confirmed" %}
-                                    <button type="submit" class="btn btn-info" name="ship">Ship</a>
-                                {% elif order_item.status == "shipped" %}
-                                    <button type="submit" class="btn btn-success" name="deliver">Deliver</a>
-                                {% elif order_item.status == "cancelled" %}
-                                <button class="btn btn-danger disabled">Cancelled</a>
-                                {% elif order_item.status == "delivered" %}
-                                    <button class="btn btn-success disabled">Delivered</a>
-                                {% endif %}
-                        </form>
-                        </center>
+                  <td class="product-category"><span class="categories">{{order.created_at}}</span></td>
+                  <td class="action" data-title="Action">
+                    <div class="">
+                      <ul class="list-inline justify-content-center">
+                        <li class="list-inline-item">
+                          <a data-toggle="tooltip" data-placement="top" title="view" class="view" href="{% url "vendor_order_details" order.id %}">
+                            <i class="fa fa-eye"></i>
+                          </a>
+                        </li>
+                      </ul>
                     </div>
                   </td>
                 </tr>

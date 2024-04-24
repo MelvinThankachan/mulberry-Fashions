@@ -48,9 +48,9 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "pending"),
         ("confirmed", "confirmed"),
-        ("shipped", "Shipped"),
-        ("delivered", "Delivered"),
-        ("cancelled", "Cancelled"),
+        ("shipped", "shipped"),
+        ("delivered", "delivered"),
+        ("cancelled", "cancelled"),
     ]
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -72,9 +72,9 @@ class OrderItem(models.Model):
     STATUS_CHOICES = [
         ("pending", "pending"),
         ("confirmed", "confirmed"),
-        ("shipped", "Shipped"),
-        ("delivered", "Delivered"),
-        ("cancelled", "Cancelled"),
+        ("shipped", "shipped"),
+        ("delivered", "delivered"),
+        ("cancelled", "cancelled"),
     ]
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -84,3 +84,7 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.brand_name} {self.product.name}"
+
+
+
+# Check notepad++ for payment model

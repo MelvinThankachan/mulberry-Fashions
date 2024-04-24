@@ -28,6 +28,7 @@
                             <h4 class="widget-title">Sort By</h4>
                             <select name="sort_by" class="form-control">
                                 <option>Relevance</option>
+                                <option {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
                                 <option {% if sort_by == "Price Low to High" %}selected{% endif %}>Price Low to High</option>
                                 <option {% if sort_by == "Price High to Low" %}selected{% endif %}>Price High to Low</option>
                                 <option {% if sort_by == "New Arrivals" %}selected{% endif %}>New Arrivals</option>
@@ -41,6 +42,15 @@
                                 <option>All Categories</option>
                                 {% for category in categories %}
                                     <option {% if selected_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="widget">
+                            <h4 class="widget-title">Brands</h4>
+                            <select name="selected_brand" class="form-control">
+                                <option>All Brands</option>
+                                {% for brand in brands %}
+                                    <option {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>
                                 {% endfor %}
                             </select>
                         </div>

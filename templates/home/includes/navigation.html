@@ -23,9 +23,9 @@
 				<!-- Cart -->
 				<ul class="top-menu text-right list-inline">
 					<li class="dropdown cart-nav dropdown-slide">
-						<a href="{% url "cart" %}" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"><i
+						<a href="{% url "cart" %}"><i
 								class="tf-ion-android-cart"></i>Cart</a>
-						<div class="dropdown-menu cart-dropdown">
+						{% comment %} <div class="dropdown-menu cart-dropdown">
 							<!-- Cart Item -->
 							<div class="media">
 								<a class="pull-left" href="#!">
@@ -65,7 +65,7 @@
 								<li><a href="{% url "cart" %}" class="btn btn-small">View Cart</a></li>
 								<li><a href="{% url "checkout" %}" class="btn btn-small btn-solid-border">Checkout</a></li>
 							</ul>
-						</div>
+						</div> {% endcomment %}
 
 					</li><!-- / Cart -->
 
