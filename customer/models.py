@@ -79,6 +79,8 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    # size = models.CharField(max_length=2, default="S")
+    # price = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     quantity = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
 
@@ -88,3 +90,11 @@ class OrderItem(models.Model):
 
 
 # Check notepad++ for payment model
+
+
+class FavouriteItem(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.customer.first_name}'s favourite {self.product.name}"

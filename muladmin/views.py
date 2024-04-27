@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from accounts.models import Customer, Vendor, Account
 from product.models import Category, Product, Inventory, ProductImage
-from customer.models import OrderItem
+from customer.models import OrderItem, Order
 from django.utils.text import slugify
 from django.contrib import messages
 from django.http import HttpResponse
+from datetime import datetime, timedelta
+from django.db.models import F
 
 
 def admin_login_required(func):
@@ -15,7 +17,7 @@ def admin_login_required(func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_superadmin:
             target_url = request.build_absolute_uri()
-            request.session['admin_target_url'] = target_url
+            request.session["admin_target_url"] = target_url
             return redirect("admin_login")
         return func(request, *args, **kwargs)
 
@@ -118,6 +120,11 @@ def add_category(request):
         category_description = request.POST.get("category_description")
         category_image = request.FILES.get("category_image")
         slug = slugify(category_name)
+
+        if "image" not in category_image.content_type:
+            error_message = "Please select an image file"
+            messages.error(request, error_message)
+            return redirect("add_category")
 
         if Category.objects.filter(name=category_name).exists():
             error_message = "Category already exists"
@@ -290,8 +297,75 @@ def add_account(request):
 def order_list(request):
     title = "Orders"
     current_page = "order_list"
-    order_items = OrderItem.objects.all()
+    order_items = OrderItem.objects.all().order_by("-id")
     request.session["selection"] = "all"
 
     context = {"order_items": order_items, "current_page": current_page, "title": title}
     return render(request, "muladmin/order-list.html", context=context)
+
+
+@admin_login_required
+def sales_report(request):
+    title = "Sales Report"
+    current_page = "sales_report"
+    request.session["selection"] = "1_month"
+    start_date = datetime.now() - timedelta(days=30)
+    end_date = datetime.now()
+
+    if request.method == "POST":
+        filter_option = request.POST.get("filter_option")
+        if filter_option == "today":
+            start_date = datetime.now() - timedelta(days=1)
+            end_date = datetime.now()
+            request.session["selection"] = "today"
+        elif filter_option == "1_month":
+            start_date = datetime.now() - timedelta(days=30)
+            end_date = datetime.now()
+            request.session["selection"] = "1_month"
+        elif filter_option == "6_months":
+            start_date = datetime.now() - timedelta(days=180)
+            end_date = datetime.now()
+            request.session["selection"] = "6_months"
+        elif filter_option == "1_year":
+            start_date = datetime.now() - timedelta(days=360)
+            end_date = datetime.now()
+            request.session["selection"] = "1_year"
+        elif "custom_date" in request.POST:
+            start_date = request.POST.get("start_date")
+            end_date = request.POST.get("end_date")
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date = datetime.strptime(end_date, "%Y-%m-%d")
+            if start_date > end_date:
+                error_message = "Select a valid date range!"
+                messages.error(request, error_message)
+                return redirect("sales_report")
+            request.session["selection"] = "custom"
+
+
+    orders = Order.objects.filter(created_at__range=[start_date, end_date]).order_by("-created_at")
+    order_items = OrderItem.objects.filter(order__in=orders).annotate(
+        order_created_at=F("order__created_at")
+    )
+    order_items = order_items.order_by("-order_created_at")
+
+    overall_amount = 0
+    for order_item in order_items:
+        overall_amount += order_item.inventory.price * order_item.quantity
+    overall_count = order_items.count()
+
+    start_date_str = start_date.strftime("%d-%m-%Y")
+    end_date_str = end_date.strftime("%d-%m-%Y")
+    pdf_name = f"sales-report-{start_date_str}-{end_date_str}"
+
+    context = {
+        "order_items": order_items,
+        "current_page": current_page,
+        "title": title,
+        "start_date": start_date,
+        "end_date": end_date,
+        "pdf_name": pdf_name,
+        "overall_amount": overall_amount,
+        "overall_count": overall_count,
+    }
+
+    return render(request, "muladmin/sales-report.html", context=context)

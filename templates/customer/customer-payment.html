@@ -12,13 +12,12 @@
                     <div class="price-title text-center">
                         <h3>Order ID: Order #{{ razorpay_order_id }}</h3>
                         <br>
-                        <p class="h3">Payment Method:</p>
-                        <strong class="value">Online Payment</strong>
+                        <p class="h3">Payment Method: <strong class="h2">Online Payment</strong></p>
                         <br>
-                        <p class="h3">Payment Gateway:</p>
-                        <strong class="value">RazorPay</strong>
+                        <p class="h3">Payment Gateway: <strong class="h2">RazorPay</strong></p>
+                        
                         <br>
-                        <strong class="value">₹ {{ razorpay_amount }}</strong>
+                        <p class="h3">Amount: <strong class="h2">₹ {{ actual_amount }}</strong></p>
                         <br>
                         <p>Perfect for single freelancers who work by themselves</p>
                         <a class="btn btn-main" id="rzp-button1" href="">Pay with Razorpay</a>

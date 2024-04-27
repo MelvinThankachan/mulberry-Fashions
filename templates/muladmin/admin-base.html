@@ -182,6 +182,13 @@
                     <span class="nav-text">Orders</span> 
                   </a>
                 </li>
+
+                <li class="{% if current_page == "sales_report" %}active{% endif %}">
+                  <a href="{% url 'sales_report' %}">
+                    <i class="mdi mdi mdi-file-chart"></i>
+                    <span class="nav-text">Sales report</span>
+                  </a>
+                </li>
                 
                 <li class="{% if current_page == "add_account" %}active{% endif %}">
                   <a href="{% url 'add_account' %}">

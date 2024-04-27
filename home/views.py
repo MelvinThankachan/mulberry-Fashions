@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from product.models import Product, Category, ProductImage, Inventory
 from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.db.models import F, Sum
-from customer.models import OrderItem
+from django.db.models import F, Sum, Q
+from customer.models import OrderItem, FavouriteItem
 
 
 # Create your views here.
@@ -17,6 +17,11 @@ def home(request):
         small_size = product.inventory_sizes.get(size="S")
         small_size_price = small_size.price
         product.price = small_size_price
+        if FavouriteItem.objects.filter(customer__id=request.user.id, product=product).exists():
+            product.is_favourite = True
+        else:
+            product.is_favourite = False
+
     categories = Category.objects.all()[:4]
     context = {"products": products, "categories": categories, "title": title}
     return render(request, "home/home.html", context)
@@ -32,7 +37,9 @@ def shop(request):
     if "search" in request.GET:
         search_term = request.GET.get("search")
         products = (
-            Product.approved_objects.filter(name__icontains=search_term)
+            Product.approved_objects.filter(
+                Q(name__icontains=search_term) | Q(brand_name__icontains=search_term)
+            )
             .filter(inventory_sizes__size="S")
             .annotate(price=F("inventory_sizes__price"))
         )
@@ -83,6 +90,10 @@ def shop(request):
 
     for product in products:
         product.primary_image = product.product_images.filter(priority=1).first()
+        if FavouriteItem.objects.filter(customer__id=request.user.id, product=product).exists():
+            product.is_favourite = True
+        else:
+            product.is_favourite = False
 
     products = [product for product in products for _ in range(1)]
     paginator = Paginator(products, 6)

@@ -1,16 +1,12 @@
 from django.shortcuts import render, redirect
 from accounts.models import Customer
-from django.http import HttpResponse, HttpResponseBadRequest
-from .models import Cart, CartItem, Address, Order, OrderItem
+from django.http import HttpResponse
+from .models import Cart, CartItem, Address, Order, OrderItem, FavouriteItem
 from product.models import Product, Inventory
 from .utils import list_of_states_in_india
 from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth import logout
-import razorpay
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse
 
 
 def customer_login_required(func):
@@ -287,6 +283,40 @@ def cancel_order_item(request, order_item_id):
     return redirect("customer_orders")
 
 
+# Customer Favourite Session
+
+
+@customer_login_required
+def favourites(request):
+    customer = Customer.objects.get(id=request.user.id)
+    favourite_items = FavouriteItem.objects.filter(customer=customer)
+    for favourite_item in favourite_items:
+        favourite_item.product.primary_image = favourite_item.product.product_images.filter(
+            priority=1
+        ).first()
+        small_size = favourite_item.product.inventory_sizes.get(size="S")
+        small_size_price = small_size.price
+        favourite_item.product.price = small_size_price
+
+    context = {"favourite_items": favourite_items, "customer": customer}
+    return render(request, "customer/favourites.html", context)
+
+
+@customer_login_required
+def add_to_favourite(request, product_id):
+    customer = Customer.objects.get(id=request.user.id)
+    product = Product.objects.get(id=product_id)
+    favourite_item, created = FavouriteItem.objects.get_or_create(customer=customer, product=product)
+    return redirect("favourites")
+
+
+@customer_login_required
+def remove_favourite_item(request, favourite_item_id):
+    favourite_item = FavouriteItem.objects.get(id=favourite_item_id)
+    favourite_item.delete()
+    return redirect("favourites")
+
+
 # Customer Cart Session
 
 
@@ -331,6 +361,16 @@ def add_to_cart(request, product_id):
         cart_item, cart_item_created = CartItem.objects.get_or_create(
             cart=cart, product=product, inventory=inventory
         )
+
+        # Removing from the Favourites
+        try:
+            favourite_item = FavouriteItem.objects.get(customer=customer, product=product)
+            if favourite_item:
+                favourite_item.delete()
+        except Exception as e:
+            print(e)
+
+        # Managing the maximum number of products per customer
         if not cart_item_created:
             if cart_item.quantity + quantity > 10:
                 cart_item.quantity = 10
@@ -351,6 +391,13 @@ def update_cart_item(request, cart_item_id):
         quantity = int(request.POST.get("product-quantity"))
         size = request.POST.get("product-size")
         inventory = Inventory.objects.get(product=cart_item.product, size=size)
+
+        if quantity > inventory.stock:
+            error_message = (
+                f"Only {inventory.stock} item(s) available in stock for this size."
+            )
+            messages.error(request, error_message)
+            return redirect("product_page", slug=cart_item.product.slug)
 
         cart_item.quantity = quantity
         cart_item.inventory = inventory
@@ -399,109 +446,7 @@ def checkout(request):
     return render(request, "customer/checkout.html", context)
 
 
-# Customer Payment Session
-
-
-# RazorPay intergration
-
-# authorize razorpay client with API Keys.
-razorpay_client = razorpay.Client(
-    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET)
-)
-
-
-@customer_login_required
-def razorpay_order_creation(request):
-
-    currency = "INR"
-    amount = 3000 * 100
-
-    data = {"amount": amount, "currency": currency}
-    razorpay_order = razorpay_client.order.create(data)
-
-    razorpay_order_id = razorpay_order["id"]
-    callback_url = request.build_absolute_uri(reverse("razorpay_paymenthandler"))
-
-    context = {
-        "razorpay_order_id": razorpay_order_id,
-        "razorpay_merchant_key": settings.RAZOR_KEY_ID,
-        "razorpay_amount": amount,
-        "currency": currency,
-        "callback_url": callback_url,
-    }
-
-    return render(request, "customer/customer-payment.html", context=context)
-
-
-@csrf_exempt
-def razorpay_paymenthandler(request):
-    print("handler")
-    # Ensure CSRF protection
-    if request.method != "POST":
-        return HttpResponseBadRequest("Invalid Request Method")
-
-    try:
-        # Get the required parameters from the POST request
-        payment_id = request.POST.get("razorpay_payment_id", "")
-        razorpay_order_id = request.POST.get("razorpay_order_id", "")
-        signature = request.POST.get("razorpay_signature", "")
-        params_dict = {
-            "razorpay_order_id": razorpay_order_id,
-            "razorpay_payment_id": payment_id,
-            "razorpay_signature": signature,
-        }
-
-        # Verify the payment signature
-        result = razorpay_client.utility.verify_payment_signature(params_dict)
-        if result:
-            return render(request, "customer/customer-payment-success.html")
-        else:
-            return HttpResponse("Payment Failed: Invalid Signature", status=400)
-
-    except KeyError:
-        # Missing required parameters in POST data
-        return HttpResponseBadRequest("Missing Parameters")
-    except Exception as e:
-        # Other exceptions
-        error = f"Error processing payment: {str(e)}"
-        return HttpResponse(f"Payment Failed {error}", status=500)
-
-
 # Customer Order Session
-
-
-@customer_login_required
-def create_order(request, address_id):
-    customer = Customer.objects.get(id=request.user.id)
-    address = Address.objects.get(id=address_id)
-    cart = Cart.objects.get(customer=customer)
-    cart_items = CartItem.objects.filter(cart=cart)
-    total_amount = 0
-
-    for cart_item in cart_items:
-        total_amount += cart_item.quantity * cart_item.inventory.price
-
-    cart.total_amount = total_amount
-
-    order = Order.objects.create(
-        customer=customer,
-        address=address.address_text,
-        total_amount=cart.total_amount,
-    )
-
-    for cart_item in cart_items:
-        OrderItem.objects.create(
-            order=order,
-            product=cart_item.product,
-            inventory=cart_item.inventory,
-            quantity=cart_item.quantity,
-        )
-
-        cart_item.inventory.stock -= cart_item.quantity
-        cart_item.inventory.save()
-        cart_item.delete()
-
-    return redirect("customer_orders")
 
 
 @customer_login_required
@@ -510,10 +455,56 @@ def place_order(request):
         print(request.POST)
         address_id = request.POST.get("address_id")
         payment_method = request.POST.get("payment_method")
+        request.session["address_id"] = address_id
+        cart = Cart.objects.get(customer=request.user)
+        cart_items = CartItem.objects.filter(cart=cart)
+        total_amount = 0
+
+        for cart_item in cart_items:
+            total_amount += cart_item.quantity * cart_item.inventory.price
 
         if payment_method == "cod":
             pass
         elif payment_method == "razorpay":
-            return redirect("razorpay_order_creation")
+            return redirect("razorpay_order_creation", amount=total_amount)
         else:
             return HttpResponse("PASS")
+
+
+def create_order(request):
+    try:
+        address_id = request.session.get("address_id")
+        customer = Customer.objects.get(id=request.user.id)
+        address = Address.objects.get(id=address_id)
+        cart = Cart.objects.get(customer=customer)
+        cart_items = CartItem.objects.filter(cart=cart)
+        total_amount = 0
+
+        for cart_item in cart_items:
+            total_amount += cart_item.quantity * cart_item.inventory.price
+
+        cart.total_amount = total_amount
+
+        order = Order.objects.create(
+            customer=customer,
+            address=address.address_text,
+            total_amount=cart.total_amount,
+        )
+        print(f"order_id: {order.id}")
+
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                inventory=cart_item.inventory,
+                quantity=cart_item.quantity,
+            )
+
+            cart_item.inventory.stock -= cart_item.quantity
+            cart_item.inventory.save()
+            cart_item.delete()
+
+        return True
+    except Exception as e:
+        print(e)
+        return False

@@ -27,6 +27,7 @@ urlpatterns = [
     path("account/", include("accounts.urls")),
     path("vendor/", include("vendor.urls")),
     path("muladmin/", include("muladmin.urls")),
+    path("payment/", include("payment.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = "mulberry Admin"
