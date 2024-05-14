@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from accounts.models import Customer, Vendor, Account
 from product.models import Category, Product, Inventory, ProductImage
 from customer.models import OrderItem, Order
+from muladmin.models import Coupon
 from django.utils.text import slugify
 from django.contrib import messages
 from django.http import HttpResponse
@@ -341,8 +342,9 @@ def sales_report(request):
                 return redirect("sales_report")
             request.session["selection"] = "custom"
 
-
-    orders = Order.objects.filter(created_at__range=[start_date, end_date]).order_by("-created_at")
+    orders = Order.objects.filter(created_at__range=[start_date, end_date]).order_by(
+        "-created_at"
+    )
     order_items = OrderItem.objects.filter(order__in=orders).annotate(
         order_created_at=F("order__created_at")
     )
@@ -369,3 +371,98 @@ def sales_report(request):
     }
 
     return render(request, "muladmin/sales-report.html", context=context)
+
+
+@admin_login_required
+def coupon_list(request):
+    title = "Coupons"
+    current_page = "coupon_list"
+    coupons = Coupon.objects.all().order_by("-created_at")
+    request.session["selection"] = "all_coupons"
+
+    if request.method == "POST":
+        filter_option = request.POST.get("filter_option")
+        if filter_option == "active_coupons":
+            coupons = Coupon.objects.filter(is_active=True)
+            request.session["selection"] = "active_coupons"
+        if filter_option == "inactive_coupons":
+            coupons = Coupon.objects.filter(is_active=False)
+            request.session["selection"] = "inactive_coupons"
+        if filter_option == "expired_coupons":
+            coupons = Coupon.objects.filter(quantity=0)
+            request.session["selection"] = "expired_coupons"
+
+    context = {"title": title, "current_page": current_page, "coupons": coupons}
+    return render(request, "muladmin/coupon-list.html", context)
+
+
+@admin_login_required
+def add_coupon(request):
+    title = "New Coupon"
+    current_page = "add_coupon"
+
+    if request.method == "POST":
+        coupon_code = request.POST.get("code").upper()
+        discount = request.POST.get("discount")
+        quantity = request.POST.get("quantity")
+        minimum_purchase = request.POST.get("minimum_purchase")
+        active = request.POST.get("active")
+
+        if Coupon.objects.filter(code=coupon_code).exists():
+            error_message = "Coupon already exists"
+            messages.error(request, error_message)
+            return redirect("add_coupon")
+
+        # Creating a new coupon
+        new_coupon = Coupon.objects.create(
+            code=coupon_code,
+            discount=discount,
+            quantity=quantity,
+            minimum_purchase=minimum_purchase,
+            is_active=active,
+        )
+
+        return redirect("coupon_list")
+
+    context = {"title": title, "current_page": current_page}
+    return render(request, "muladmin/coupon-form.html", context)
+
+
+@admin_login_required
+def edit_coupon(request, id):
+    title = "Edit Coupon"
+    current_page = "edit_coupon"
+    coupon = Coupon.objects.get(id=id)
+
+    if request.method == "POST":
+        coupon_code = request.POST.get("code").upper()
+        discount = request.POST.get("discount")
+        quantity = request.POST.get("quantity")
+        minimum_purchase = request.POST.get("minimum_purchase")
+        active = request.POST.get("active")
+        print("Active :", active)
+
+        if Coupon.objects.filter(code=coupon_code).exclude(id=coupon.id).exists():
+            error_message = "Coupon already exists"
+            messages.error(request, error_message)
+            return redirect("edit_coupon", id=coupon.id)
+
+        # Updating Coupon
+        coupon.code = coupon_code
+        coupon.discount = discount
+        coupon.quantity = quantity
+        coupon.minimum_purchase = minimum_purchase
+        coupon.is_active = active
+        coupon.save()
+
+        return redirect("coupon_list")
+
+    context = {"title": title, "current_page": current_page, "coupon": coupon}
+    return render(request, "muladmin/coupon-form.html", context)
+
+
+@admin_login_required
+def delete_coupon(request, id):
+    coupon = Coupon.objects.get(id=id)
+    coupon.delete()
+    return redirect("coupon_list")

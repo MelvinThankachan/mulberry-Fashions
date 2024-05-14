@@ -29,11 +29,6 @@
          <div class="row">
             <div class="col-md-8">
                <div class="block billing-details">
-                  {% for message in messages %}
-                     {% if message.tags == "error" %}
-                        <div class="alert alert-danger" role="alert">{{message}}</div>
-                     {% endif %}
-                  {% endfor %}
                   <h4 class="widget-title">Select address</h4>
                   <p>Select your delivery address</p>
                   <br>
@@ -66,11 +61,21 @@
                                  {{ address.address_text|linebreaksbr }}
                               </label>
                                  <br>
-                                 <br>
                            </div>
                         {% endif %}
                      {% endfor %}
                   </div>
+               </div>
+               <div class="block billing-details">
+                  <div class="form-group">
+                     <label for="full_name">Coupon:</label>
+                     <input type="text" class="form-control" name="coupon_code" placeholder="Have a discount coupon?">
+                  </div>
+                  {% for message in messages %}
+                     {% if message.tags == "error" %}
+                        <div class="alert alert-danger" role="alert">{{message}}</div>
+                     {% endif %}
+                  {% endfor %}
                </div>
                <div class="block billing-details">
                   <h4 class="widget-title">Select Payment option</h4>
@@ -90,10 +95,11 @@
                            </label>
                         </div> {% endcomment %}
                         <div class="form-check col-md-6" style="margin-bottom:30px;">
-                           <input class="form-check-input" type="radio" name="payment_method" id="payment-cod" value="cod" required>
+                           <input {% if cart.total_amount > 1000 %} disabled {% endif %} class="form-check-input" type="radio" name="payment_method" id="payment-cod" value="cod" required>
                            <label class="form-check-label" for="payment-cod">
                               <img class="payment-image" src="{% static "images\cash-on-delivery.png" %}" alt="">
                            </label>
+                           {% if cart.total_amount > 1000 %} <p>Cash on delivery is not available for orders above 1000 Rs.</p> {% endif %}
                         </div>
                      </div>
                   <br>
@@ -192,9 +198,9 @@
                            </div>
                         </div>
                      {% endfor %}
-                     <div class="discount-code">
-                        <p>Have a discount ? <a data-toggle="modal" data-target="#coupon-modal" href="#!">enter it here</a></p>
-                     </div>
+                     {% comment %} <div class="discount-code">
+                        <p>Have a discount coupon? <a data-toggle="modal" data-target="#coupon-modal" href="#!">enter it here</a></p>
+                     </div> {% endcomment %}
                      <ul class="summary-prices">
                         <li>
                            <span>Subtotal:</span>

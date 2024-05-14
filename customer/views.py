@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from accounts.models import Customer
 from django.http import HttpResponse
-from .models import Cart, CartItem, Address, Order, OrderItem, FavouriteItem
+from .models import Cart, CartItem, Address, Order, OrderItem, FavouriteItem, Wallet
+from muladmin.models import Coupon
 from product.models import Product, Inventory
 from .utils import list_of_states_in_india
 from django.db.models import Sum
@@ -144,7 +145,7 @@ def new_address(request):
             customer=customer,
             name=name,
             pincode=pincode,
-            mobile_number=mobile,
+            mobile=mobile,
             building=building,
             street=street,
             city=city,
@@ -158,6 +159,7 @@ def new_address(request):
 
         if "checkout_submit" in request.POST:
             return redirect("checkout")
+
         return redirect("customer_address")
 
     context = {"states": list_of_states_in_india}
@@ -192,7 +194,7 @@ def edit_address(request, address_id):
         address.customer = customer
         address.name = name
         address.pincode = pincode
-        address.mobile_number = mobile
+        address.mobile = mobile
         address.building = building
         address.street = street
         address.city = city
@@ -243,11 +245,13 @@ def orders(request):
 
     for order in orders:
         order.order_items = OrderItem.objects.filter(order=order)
+        order.sub_total = 0
 
         for order_item in order.order_items:
             order_item.product.primary_image = order_item.product.product_images.filter(
                 priority=1
             ).first()
+            order.sub_total += order_item.quantity * order_item.inventory.price
 
     context = {"customer": customer, "orders": orders}
     return render(request, "customer/customer-orders.html", context)
@@ -257,13 +261,18 @@ def orders(request):
 def cancel_order(request, order_id):
     order = Order.objects.get(id=order_id)
     order_items = OrderItem.objects.filter(order=order)
+    wallet, created = Wallet.objects.get_or_create(customer__id=request.user.id)
 
     for order_item in order_items:
         if order_item.status != "cancelled":
             order_item.status = "cancelled"
             order_item.inventory.stock += order_item.quantity
+            if order.is_paid:
+                wallet.balance += order_item.inventory.price
+
             order_item.inventory.save()
             order_item.save()
+            
 
     order.status = "cancelled"
     order.save()
@@ -273,6 +282,7 @@ def cancel_order(request, order_id):
 
 def cancel_order_item(request, order_item_id):
     order_item = OrderItem.objects.get(id=order_item_id)
+    wallet, created = Wallet.objects.get_or_create(customer__id=request.user.id)
 
     if order_item.status != "cancelled":
         order_item.status = "cancelled"
@@ -291,9 +301,9 @@ def favourites(request):
     customer = Customer.objects.get(id=request.user.id)
     favourite_items = FavouriteItem.objects.filter(customer=customer)
     for favourite_item in favourite_items:
-        favourite_item.product.primary_image = favourite_item.product.product_images.filter(
-            priority=1
-        ).first()
+        favourite_item.product.primary_image = (
+            favourite_item.product.product_images.filter(priority=1).first()
+        )
         small_size = favourite_item.product.inventory_sizes.get(size="S")
         small_size_price = small_size.price
         favourite_item.product.price = small_size_price
@@ -306,7 +316,9 @@ def favourites(request):
 def add_to_favourite(request, product_id):
     customer = Customer.objects.get(id=request.user.id)
     product = Product.objects.get(id=product_id)
-    favourite_item, created = FavouriteItem.objects.get_or_create(customer=customer, product=product)
+    favourite_item, created = FavouriteItem.objects.get_or_create(
+        customer=customer, product=product
+    )
     return redirect("favourites")
 
 
@@ -364,7 +376,9 @@ def add_to_cart(request, product_id):
 
         # Removing from the Favourites
         try:
-            favourite_item = FavouriteItem.objects.get(customer=customer, product=product)
+            favourite_item = FavouriteItem.objects.get(
+                customer=customer, product=product
+            )
             if favourite_item:
                 favourite_item.delete()
         except Exception as e:
@@ -456,6 +470,10 @@ def place_order(request):
         address_id = request.POST.get("address_id")
         payment_method = request.POST.get("payment_method")
         request.session["address_id"] = address_id
+        request.session["payment_method"] = payment_method
+        coupon_code = request.POST.get("coupon_code").upper()
+        print(coupon_code)
+
         cart = Cart.objects.get(customer=request.user)
         cart_items = CartItem.objects.filter(cart=cart)
         total_amount = 0
@@ -463,8 +481,34 @@ def place_order(request):
         for cart_item in cart_items:
             total_amount += cart_item.quantity * cart_item.inventory.price
 
+        if coupon_code != "":
+            if Coupon.objects.filter(code=coupon_code, is_active=True).exists():
+                coupon = Coupon.objects.get(code=coupon_code, is_active=True)
+                if coupon.discount >= total_amount:
+                    error_message = "Coupon is not valid for this purchase."
+                    messages.error(request, error_message)
+                    return redirect("checkout")
+
+                if coupon.quantity < 1:
+                    error_message = "Coupon expired"
+                    messages.error(request, error_message)
+                    return redirect("checkout")
+
+                if coupon.minimum_purchase > total_amount:
+                    error_message = f"You should purchase for {coupon.minimum_purchase} to appply this coupon."
+                    messages.error(request, error_message)
+                    return redirect("checkout")
+
+                total_amount -= coupon.discount
+                request.session["discount"] = coupon.discount
+                request.session["coupon_code"] = coupon.code
+            else:
+                error_message = "Invalid Coupon"
+                messages.error(request, error_message)
+                return redirect("checkout")
+
         if payment_method == "cod":
-            pass
+            return redirect("cash_on_delivery")
         elif payment_method == "razorpay":
             return redirect("razorpay_order_creation", amount=total_amount)
         else:
@@ -474,6 +518,8 @@ def place_order(request):
 def create_order(request):
     try:
         address_id = request.session.get("address_id")
+        coupon_code = request.session.get("coupon_code")
+        discount = request.session.get("discount")
         customer = Customer.objects.get(id=request.user.id)
         address = Address.objects.get(id=address_id)
         cart = Cart.objects.get(customer=customer)
@@ -490,6 +536,19 @@ def create_order(request):
             address=address.address_text,
             total_amount=cart.total_amount,
         )
+
+        if coupon_code:
+            print(coupon_code)
+            coupon = Coupon.objects.get(code=coupon_code)
+            order.discount = discount
+            order.coupon = coupon
+            order.total_amount -= coupon.discount
+            order.save()
+            coupon.quantity -= 1
+            del request.session["discount"]
+            del request.session["coupon_code"]
+            coupon.save()
+
         print(f"order_id: {order.id}")
 
         for cart_item in cart_items:
@@ -504,7 +563,34 @@ def create_order(request):
             cart_item.inventory.save()
             cart_item.delete()
 
+        payment_method = request.session["payment_method"]
+        if payment_method == "cod":
+            order.payment_method = payment_method
+            order.is_paid = False
+            order.save()
+
+        if payment_method == "razorpay":
+            order.payment_method = payment_method
+            order.is_paid = True
+            order.save()
+
+        del request.session["payment_method"]
+
         return True
     except Exception as e:
         print(e)
         return False
+
+
+# Wallet management
+
+
+@customer_login_required
+def customer_wallet(request):
+    customer = Customer.objects.get(id=request.user.id)
+    wallet, is_wallet_created = Wallet.objects.get_or_create(customer=customer)
+    order_items = OrderItem.objects.filter(order__customer=customer, status="cancelled")
+    print(order_items)
+
+    context = {"customer": customer, "wallet": wallet, "order_items": order_items}
+    return render(request, "customer/customer-wallet.html", context)

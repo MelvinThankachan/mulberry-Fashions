@@ -32,11 +32,14 @@
         <a href="{% url "product_page" product.slug %}">
             <h4><strong>{{ product.brand_name }}</strong></h4>
             <p class="truncate">{{ product.name }}</p>
-            <p class="price"><strong class="h4">&#8377; {{ product.price }} </strong><del class="h6"> MRP: {{ product.mrp }}</del></p>
+            <p class="price"><strong class="h4">&#8377; {{ product.price }} </strong>
+				{% if product.price < product.mrp %}
+					<del class="h6"> MRP: {{ product.mrp }}</del>
+				{% endif %}
+			</p>
         </a>
     </div>
 </div>
-
 
 
 <!-- Modal -->

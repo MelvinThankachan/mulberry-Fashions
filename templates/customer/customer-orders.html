@@ -13,7 +13,7 @@
                     <ol class="breadcrumb">
                         <li><a href="{% url "home" %}">Home</a></li>
                         <li><a href="">Profile</a></li>
-                        <li class="active"><a href="">Orders</a></li>
+                        <li class="active"><a href="">Orders</a></li>   
                     </ol>
                 </div>
             </div>
@@ -30,7 +30,8 @@
                         <li><a href="{% url "customer_dashboard" %}">Dashboard</a></li>
                         <li><a class="active" href="{% url "customer_orders" %}">Orders</a></li>
                         <li><a href="{% url "customer_address" %}">Address</a></li>
-                        <li><a href="{% url "customer_profile" %}">Profile Details</a></li>      
+                        <li><a href="{% url "customer_profile" %}">Profile Details</a></li>     
+                        <li><a href="{% url "customer_wallet" %}">Wallet</a></li>    
                     </ul>
                     <div class="dashboard-wrapper user-dashboard">
                         {% if orders %}
@@ -39,10 +40,10 @@
                                 <thead>
                                     <tr>
                                         <th>Order ID</th>
-                                        {% comment %} <th>Delivery Address</th> {% endcomment %}
                                         <th>Date</th>
-                                        <th>Items</th>
                                         <th>Total Price</th>
+                                        <th>Payment Method</th>
+                                        <th class="text-center">Payment</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -50,14 +51,16 @@
                                     {% for order in orders %}
                                         <tr>
                                             <td>#{{ order.id }}</td>
-                                            {% comment %} <td>{{ order.address|linebreaksbr }}</td> {% endcomment %}
                                             <td>{{ order.created_at|date:"Y-m-d" }}</td>
-                                            <td>
-                                                {% for order_item in order.order_items %}
-                                                    <p>{{ order_item }}</p>
-                                                {% endfor %}
-                                            </td>
                                             <td> ₹ {{ order.total_amount }}</td>
+                                            <td> {{ order.payment_method }}</td>
+                                            <td class="text-center">
+                                                {% if order.is_paid %}
+                                                Paid
+                                                {% else %}
+                                                <a href="{% url "pay_now" order.id %}" class="btn  btn-small btn-round-full">Pay Now</a>
+                                                {% endif %}
+                                            </td>
                                             <td><center>
                                                 <a href="#" data-toggle="modal" data-target="#order-view-modal-{{ order.id }}" class="btn  btn-small btn-round-full">Order Summary</a>
                                             </center></td>
@@ -72,10 +75,14 @@
                                                 <div class="modal-content">
                                                     <div class="modal-body">
                                                         <div class="row">
-                                                            <div class="product-checkout-details">
+                                                            <h1 class="widget-title">Order Summary</h1>
+                                                            <button class="btn btn-primary" id="download-invoice-{{order.id}}">Download Invoice</button>
+                                                            <hr>
+                                                            <div class="product-checkout-details" id="order-invoice-{{order.id}}">
                                                                 <div class="block">
-                                                                    <h1 class="widget-title">Order Summary</h1>
+                                                                    <h1>Order ID: {{ order.id }}</h1>
                                                                     <hr>
+                                                                    <h2>Products</h2>
                                                                     {% for order_item in order.order_items %}
                                                                         <div class="media product-card">
                                                                             <a class="pull-left" href="{% url "product_page" order_item.product.slug %}">
@@ -106,12 +113,18 @@
                                                                     <ul class="summary-prices">
                                                                         <li>
                                                                             <span>Subtotal:</span>
-                                                                            <span class="price">₹ {{ order.total_amount }}</span>
+                                                                            <span class="price">₹ {{ order.sub_total }}</span>
                                                                         </li>
                                                                         <li>
                                                                             <span>Shipping:</span>
                                                                             <span>Free</span>
                                                                         </li>
+                                                                        {% if order.discount > 0 %}
+                                                                            <li>
+                                                                                <span>Discount:</span>
+                                                                                <span>{{ order.discount }}</span>
+                                                                            </li>
+                                                                        {% endif %}
                                                                     </ul>
                                                                     <div class="summary-total">
                                                                         <span>Total</span>
@@ -135,14 +148,14 @@
                                                                         </div>
                                                                     </div>
                                                                     <br>
-                                                                    <div>
-                                                                        {% if order.status != "cancelled" and order.status != "delivered" %}
-                                                                            <div>
-                                                                                <button data-toggle="modal" data-target="#cancel-order-modal-{{ order.id }}" type="button" class="btn btn-danger pull-right">Cancel order</button>
-                                                                            </div>
-                                                                        {% endif %}
-                                                                    </div>
                                                                 </div>
+                                                            </div>
+                                                            <div>
+                                                                {% if order.status != "cancelled" and order.status != "delivered" %}
+                                                                    <div>
+                                                                        <button data-toggle="modal" data-target="#cancel-order-modal-{{ order.id }}" type="button" class="btn btn-danger pull-right">Cancel order</button>
+                                                                    </div>
+                                                                {% endif %}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -170,6 +183,26 @@
                                                 </div>
                                             </div>
                                         </div><!-- cancel order view modal -->
+                                        
+                                        {% comment %} <script src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js'></script>
+                                        <script>
+                                            window.onload = function () {
+                                                document.getElementById("download-invoice-{{order.id}}").addEventListener("click", () => {
+                                                    const order_invoice = document.getElementById("order-invoice-{{order.id}}");
+                                                    const filename = 'order_invoice_' + {{order.id}} + '.pdf';
+                                                    console.log(order_invoice);
+                                                    console.log(window);
+                                                    var opt = {
+                                                        margin: 0.2,
+                                                        filename: filename,
+                                                        image: { type: 'jpeg', quality: 0.98 },
+                                                        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                                                    };
+                                                    html2pdf().from(order_invoice).set(opt).save();
+                                                });
+                                            }    
+                                        </script> {% endcomment %}
+
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -202,3 +235,30 @@
         });
     });
 </script>
+
+
+{% block extra_scripts %}
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const downloadButtons = document.querySelectorAll("[id^='download-invoice-']");
+        downloadButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const orderId = button.id.replace("download-invoice-", "");
+                const order_invoice = document.getElementById("order-invoice-" + orderId);
+                const filename = 'order_invoice_' + orderId + '.pdf';
+
+                var opt = {
+                    margin: 0.2,
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().from(order_invoice).set(opt).save();
+            });
+        });
+    });
+</script>
+
+{% endblock extra_scripts %}

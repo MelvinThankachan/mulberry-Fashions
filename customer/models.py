@@ -1,7 +1,8 @@
 from django.db import models
 from product.models import Product, Inventory
 from accounts.models import Customer
-from django.core.validators import MinValueValidator, MaxValueValidator
+from muladmin.models import Coupon
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 
 class Cart(models.Model):
@@ -25,7 +26,13 @@ class CartItem(models.Model):
 
 class Address(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        validators=[RegexValidator(
+            regex=r"^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$",
+            message="Enter a valid name."
+        )]
+    )
     mobile = models.PositiveIntegerField(
         validators=[MinValueValidator(1000000000), MaxValueValidator(9999999999)]
     )
@@ -37,7 +44,9 @@ class Address(models.Model):
     street = models.CharField(max_length=255)
     city = models.CharField(max_length=255, null=True, blank=True)
     district = models.CharField(max_length=255)
-    address_text = models.TextField(null=True, blank=True) #to store the whole address as text
+    address_text = models.TextField(
+        null=True, blank=True
+    )  # to store the whole address as text
     is_default = models.BooleanField(default=False)
 
     def __str__(self):
@@ -55,7 +64,11 @@ class Order(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     address = models.TextField()
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.PositiveBigIntegerField()
+    discount = models.PositiveBigIntegerField(null=True, blank=True)
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
+    is_paid = models.BooleanField(default=False)
+    payment_method = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -68,7 +81,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    
+
     STATUS_CHOICES = [
         ("pending", "pending"),
         ("confirmed", "confirmed"),
@@ -88,7 +101,6 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.brand_name} {self.product.name}"
 
 
-
 # Check notepad++ for payment model
 
 
@@ -98,3 +110,8 @@ class FavouriteItem(models.Model):
 
     def __str__(self):
         return f"{self.customer.first_name}'s favourite {self.product.name}"
+
+
+class Wallet(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+    balance = models.PositiveIntegerField(validators=[MinValueValidator(1)], default=0)

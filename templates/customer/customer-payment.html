@@ -18,8 +18,11 @@
                         
                         <br>
                         <p class="h3">Amount: <strong class="h2">₹ {{ actual_amount }}</strong></p>
-                        <br>
-                        <p>Perfect for single freelancers who work by themselves</p>
+                        {% if request.session.discount %}
+                            <p class="h3">Discount applied: <strong class="h2">₹ {{ request.session.discount }}</strong></p>
+                        {% else %}
+                            <p>No discount applied</p>
+                        {% endif %}
                         <a class="btn btn-main" id="rzp-button1" href="">Pay with Razorpay</a>
                     </div>
                 </div>

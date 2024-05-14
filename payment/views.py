@@ -65,8 +65,11 @@ def razorpay_paymenthandler(request):
         try:
             result = razorpay_client.utility.verify_payment_signature(params_dict)
             if result:
-                is_order_created = create_order(request)
-                print(f"is_order_created: {is_order_created}")
+                if "pay_now" in request.session:
+                    is_order_updated= pay_now_update(request)
+                    print(is_order_updated)
+                else:
+                    is_order_created = create_order(request)
                 return render(request, "customer/customer-payment-success.html")
             else:
                 error_message = "Payment Failed. Please try again."
@@ -85,3 +88,38 @@ def razorpay_paymenthandler(request):
         # Other exceptions
         error = f"Error processing payment: {str(e)}"
         return HttpResponse(f"Payment Failed {error}", status=500)
+
+
+
+def cash_on_delivery(request):
+    is_order_created = create_order(request)
+    if is_order_created:
+        return render(request, "customer/customer-payment-success.html")
+    else:
+        error_message = "Something went wrong. Please try again."
+        messages.error(request, error_message)
+        return redirect("checkout")
+
+
+def pay_now(request, order_id):
+    order = Order.objects.get(id=order_id)
+    request.session["pay_now"] = "pay_now"
+    request.session["order_id"] = order_id
+    return redirect("razorpay_order_creation", amount=order.total_amount)
+
+def pay_now_update(request):
+    try:
+        order_id = request.session.get("order_id")
+        order = Order.objects.get(id=order_id)
+        order.is_paid = True
+        order.payment_method = "razorpay"
+        order.save()
+        del request.session["pay_now"]
+        del request.session["order_id"]
+        return True
+    
+    except Exception as e:
+        print(e)
+        return False
+
+
