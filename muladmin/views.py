@@ -6,8 +6,9 @@ from muladmin.models import Coupon
 from django.utils.text import slugify
 from django.contrib import messages
 from django.http import HttpResponse
-from datetime import datetime, timedelta
-from django.db.models import F
+from datetime import datetime, timedelta, date
+from django.db.models import F, Sum
+from django.db.models.functions import Coalesce
 
 
 def admin_login_required(func):
@@ -29,7 +30,102 @@ def admin_login_required(func):
 def admin_dashboard(request):
     title = "Dashboard"
     current_page = "admin_dashboard"
-    context = {"current_page": current_page, "title": title}
+
+    top_products_info = (
+        OrderItem.objects.values("product__id", "product__name", "product__brand_name")
+        .annotate(total_quantity=Coalesce(Sum("quantity"), 0))
+        .order_by("-total_quantity")[:10]
+    )
+
+    top_products = []
+
+    for product_info in top_products_info:
+        product = Product.objects.get(id=product_info["product__id"])
+        primary_image = product.product_images.filter(priority=1).first()
+        product.primary_image = primary_image
+        product.total_quantity = product_info["total_quantity"]
+        top_products.append(product)
+    
+    top_categories_info = Product.objects.values('main_category__id').annotate(total_quantity=Coalesce(Sum('orderitem__quantity'), 0)).order_by('-total_quantity')[:10]
+
+    top_categories = []
+
+    for category_info in top_categories_info:
+        category = Category.objects.get(id=category_info["main_category__id"])
+        category.total_quantity = category_info["total_quantity"]
+        top_categories.append(category)
+
+    top_brands = Product.objects.values('brand_name').annotate(total_quantity=Coalesce(Sum('orderitem__quantity'), 0)).order_by('-total_quantity')[:10]
+
+    # Line chart for revenue for last year
+    
+    end_date = date.today()
+    start_date = end_date - timedelta(days=365)
+    months = []
+    revenue_by_month = []
+
+    current_date = start_date
+    while current_date <= end_date:
+        month_start_date = current_date.replace(day=1)
+        next_month_start_date = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+
+        month_label = month_start_date.strftime('%b')
+
+        total_revenue = Order.objects.filter(created_at__gte=month_start_date, created_at__lt=next_month_start_date).aggregate(total=Sum('total_amount'))['total']
+
+        months.append(month_label)
+        revenue_by_month.append(total_revenue or 0)
+
+        current_date = next_month_start_date
+    
+    total_yearly_revenue = sum(revenue_by_month)
+
+    # Line chart for the month
+
+    today = date.today()
+    start_date = today.replace(day=1)
+    end_date = today
+
+    days = []
+    revenue_by_day = []
+
+    current_date = start_date
+    while current_date <= end_date:
+        total_revenue = Order.objects.filter(created_at__date=current_date).aggregate(total=Sum('total_amount'))['total']
+
+        days.append(current_date.day)
+        revenue_by_day.append(total_revenue or 0)
+
+        current_date += timedelta(days=1)
+    
+    total_monthly_revenue = sum(revenue_by_day)
+
+    # To count the orders according to the status
+    status_counts = {
+        'pending': OrderItem.objects.filter(status='pending').count(),
+        'confirmed': OrderItem.objects.filter(status='confirmed').count(),
+        'shipped': OrderItem.objects.filter(status='shipped').count(),
+        'delivered': OrderItem.objects.filter(status='delivered').count(),
+        'cancelled': OrderItem.objects.filter(status='cancelled').count(),
+    }
+
+    for s in status_counts:
+        print(s, status_counts[s])
+
+    context = {
+        "current_page": current_page,
+        "title": title,
+        "top_products": top_products,
+        "top_categories": top_categories,
+        "top_brands": top_brands,
+        "months": months,
+        "revenue_by_month":revenue_by_month,
+        "days": days,
+        "revenue_by_day":revenue_by_day,
+        "total_yearly_revenue":total_yearly_revenue,
+        "total_monthly_revenue":total_monthly_revenue,
+        "status_counts":status_counts,
+    }
     return render(request, "muladmin/admin-dashboard.html", context)
 
 
