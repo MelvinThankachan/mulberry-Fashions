@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from accounts.models import Vendor
 from mulberry.models import SoftDeleteModel, ApprovedProductManager
+from PIL import Image
 
 
 class Category(SoftDeleteModel):
@@ -73,3 +74,25 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image of {self.product.name}"
+    
+    # def save(self, *args, **kwargs):
+    #     image = Image.open(self.image)
+
+    #     if image.mode == 'RGBA':
+    #         image = image.convert('RGB')
+
+    #     width, height = image.size
+    #     print("before:", width, height)
+
+    #     if width / height != 3 / 4:
+    #         new_height = int(width * (4 / 3))
+
+    #         resized_image = image.resize((width, new_height))
+    
+    #         image_path = self.image.path
+    #         resized_image.save(image_path, 'JPEG')
+
+    #         width, height = resized_image.size
+    #         print("after:", width, height)
+
+    #     super().save(*args, **kwargs)

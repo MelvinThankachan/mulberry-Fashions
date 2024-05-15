@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from customer.models import Order, OrderItem
 from django.http import HttpResponse
 from django.db.models import Q
+from django.contrib import messages
 
 # Create your views here.
 
@@ -71,8 +72,13 @@ def add_product(request):
             field_name = f"product_image_{i}"
             if field_name in request.FILES:
                 product_image = request.FILES.get(field_name)
-                if product_image:
+                mime_type = product_image.content_type
+                if product_image and mime_type.startswith('image/'):
                     product_images.append(product_image)
+                else:
+                    error_message = "Invalid image"
+                    messages.error(request, error_message)
+                    return redirect("add_product")
 
         # Getting the price and stock of each size
         s_price = request.POST.get("s_price")
@@ -168,6 +174,15 @@ def edit_product(request, slug):
             for i in range(1, 7)
             if request.FILES.get(f"product_image_{i}")
         }
+
+        if edited_product_images:
+            for image in edited_product_images.values():
+                mime_type = image.content_type
+                if not mime_type.startswith('image/'):
+                    error_message = "Invalid image"
+                    messages.error(request, error_message)
+                    return redirect("edit_product", slug=product.slug)
+
 
         # Updating the product details
         product.brand_name = brand_name

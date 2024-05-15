@@ -13,6 +13,7 @@
                 <label for="filter_option" class="mr-2">Report of:</label>
                 <select class="form-control input-sm" name="filter_option" id="filter_option">
                     <option {% if request.session.selection == "today" %}selected{% endif %} value="today">Today</option>
+                    <option {% if request.session.selection == "1_week" %}selected{% endif %} value="1_week">1 week</option>
                     <option {% if request.session.selection == "1_month" %}selected{% endif %} value="1_month">1 month</option>
                     <option {% if request.session.selection == "6_months" %}selected{% endif %} value="6_months">6 months</option>
                     <option {% if request.session.selection == "1_year" %}selected{% endif %} value="1_year">1 year</option>

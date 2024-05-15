@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import Customer
 
 
 class Coupon(models.Model):
@@ -12,3 +13,10 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
+
+
+class CustomerCoupon(Coupon):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    is_customer_coupon = models.BooleanField(default=True)
+
+

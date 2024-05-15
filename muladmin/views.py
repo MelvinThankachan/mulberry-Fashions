@@ -415,6 +415,10 @@ def sales_report(request):
             start_date = datetime.now() - timedelta(days=1)
             end_date = datetime.now()
             request.session["selection"] = "today"
+        if filter_option == "1_week":
+            start_date = datetime.now() - timedelta(days=7)
+            end_date = datetime.now()
+            request.session["selection"] = "1_week"
         elif filter_option == "1_month":
             start_date = datetime.now() - timedelta(days=30)
             end_date = datetime.now()
@@ -504,6 +508,11 @@ def add_coupon(request):
         minimum_purchase = request.POST.get("minimum_purchase")
         active = request.POST.get("active")
 
+        if minimum_purchase < discount:
+            error_message = "The discount should be less than the minimum purchase limit"
+            messages.error(request, error_message)
+            return redirect("add_coupon")
+
         if Coupon.objects.filter(code=coupon_code).exists():
             error_message = "Coupon already exists"
             messages.error(request, error_message)
@@ -537,6 +546,11 @@ def edit_coupon(request, id):
         minimum_purchase = request.POST.get("minimum_purchase")
         active = request.POST.get("active")
         print("Active :", active)
+
+        if minimum_purchase < discount:
+            error_message = "The discount should be less than the minimum purchase limit"
+            messages.error(request, error_message)
+            return redirect("edit_coupon", id=coupon.id)
 
         if Coupon.objects.filter(code=coupon_code).exclude(id=coupon.id).exists():
             error_message = "Coupon already exists"

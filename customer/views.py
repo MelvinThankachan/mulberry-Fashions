@@ -268,14 +268,14 @@ def cancel_order(request, order_id):
             order_item.status = "cancelled"
             order_item.inventory.stock += order_item.quantity
             if order.is_paid:
-                wallet.balance += order_item.inventory.price
+                print("Order is paid")
 
             order_item.inventory.save()
-            order_item.save()
+            # order_item.save()
             
 
     order.status = "cancelled"
-    order.save()
+    # order.save()
 
     return redirect("customer_orders")
 
@@ -286,9 +286,13 @@ def cancel_order_item(request, order_item_id):
 
     if order_item.status != "cancelled":
         order_item.status = "cancelled"
+        if order_item.order.is_paid:
+            wallet.balance += order_item.quantity*order_item.inventory.price
+        print(wallet.balance, "balance")
         order_item.inventory.stock += order_item.quantity
         order_item.inventory.save()
         order_item.save()
+        wallet.save()
 
     return redirect("customer_orders")
 
@@ -508,6 +512,10 @@ def place_order(request):
                 return redirect("checkout")
 
         if payment_method == "cod":
+            if total_amount > 1000:
+                error_message = "COD is not available for orders above 1000 Rs."
+                messages.error(request, error_message)
+                return redirect("checkout")
             return redirect("cash_on_delivery")
         elif payment_method == "razorpay":
             return redirect("razorpay_order_creation", amount=total_amount)
@@ -589,7 +597,7 @@ def create_order(request):
 def customer_wallet(request):
     customer = Customer.objects.get(id=request.user.id)
     wallet, is_wallet_created = Wallet.objects.get_or_create(customer=customer)
-    order_items = OrderItem.objects.filter(order__customer=customer, status="cancelled")
+    order_items = OrderItem.objects.filter(order__customer=customer, status="cancelled").order_by("-id")
     print(order_items)
 
     context = {"customer": customer, "wallet": wallet, "order_items": order_items}
