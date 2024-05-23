@@ -48,7 +48,7 @@
                               <br>
                         </div>
                      {% endif %}
-                     {% endfor %}
+                  {% endfor %}
                   </div>
                   
                   <p>Other Addresses:</p>
@@ -57,7 +57,7 @@
                         {% if not address.is_default %}
                            <div class="form-check col-xs-12 col-sm-6 col-md-6 ">
                               <label class="form-check-label" for="address-radio{{ address.id }}">
-                                 <input class="form-check-input" type="radio" name="address_id" id="address-radio{{ address.id }}" value="{{ address.id }}" required>
+                                 <input {% if address.id == selected_address_id %} checked {% endif %} class="form-check-input" type="radio" name="address_id" id="address-radio{{ address.id }}" value="{{ address.id }}" required>
                                  {{ address.address_text|linebreaksbr }}
                               </label>
                                  <br>
@@ -83,19 +83,20 @@
                   <br>
                      <div class="row">
                         <div class="form-check col-md-6" style="margin-bottom:30px;">
-                           <input class="form-check-input" type="radio" name="payment_method" id="payment-razorpay" value="razorpay" required>
+                           <input {% if cart.total_amount <= 0 %} disabled {% endif %} {% if selected_payment_method == "razorpay" %}checked{% endif %} class="form-check-input" type="radio" name="payment_method" id="payment-razorpay" value="razorpay" required>
                            <label class="form-check-label" for="payment-razorpay">
                               <img class="payment-image" src="{% static "images\razorpay.png" %}" alt="">
                            </label>
+                           {% if cart.total_amount <= 0 %} <p>This payment option is not available for this order.</p> {% endif %}
                         </div>
                         {% comment %} <div class="form-check col-md-6" style="margin-bottom:30px;">
-                           <input class="form-check-input" type="radio" name="payment_method" id="payment-paypal" value="paypal" required>
+                           <input {% if selected_payment_method == "paypal" %}checked{% endif %} class="form-check-input" type="radio" name="payment_method" id="payment-paypal" value="paypal" required>
                            <label class="form-check-label" for="payment-paypal">
                               <img class="payment-image" src="{% static "images\paypal.png" %}" alt="">
                            </label>
                         </div> {% endcomment %}
                         <div class="form-check col-md-6" style="margin-bottom:30px;">
-                           <input {% if cart.total_amount > 1000 %} disabled {% endif %} class="form-check-input" type="radio" name="payment_method" id="payment-cod" value="cod" required>
+                           <input {% if cart.total_amount > 1000 %} disabled {% endif %} {% if selected_payment_method == "cod" %}checked{% endif %} class="form-check-input" type="radio" name="payment_method" id="payment-cod" value="cod" required>
                            <label class="form-check-label" for="payment-cod">
                               <img class="payment-image" src="{% static "images\cash-on-delivery.png" %}" alt="">
                            </label>
@@ -206,6 +207,12 @@
                            <span>Subtotal:</span>
                            <span class="price">₹ {{ cart.total_amount }}</span>
                         </li>
+                        {% if cart.total_offer %}
+                        <li>
+                           <span class="text-success"><b>Offers:</b></span>
+                           <span class="price text-success"><b>₹ {{ cart.total_offer }}</b></span>
+                        </li>
+                        {% endif %}
                         <li>
                            <span>Shipping:</span>
                            <span>Free</span>
@@ -213,7 +220,7 @@
                      </ul>
                      <div class="summary-total">
                         <span>Total</span>
-                        <span>₹ {{ cart.total_amount }}</span>
+                        <span>₹ {{ cart.remaining_amount }}</span>
                      </div>
                      <div class="verified-icon">
                         <img src="{% static "images/shop/verified.png" %}">

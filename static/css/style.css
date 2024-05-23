@@ -132,6 +132,17 @@ input[type=email]:focus, input[type=password]:focus, input[type=text]:focus, inp
   font-weight: 200;
   border-radius: 0;
 }
+.btn-main-favorite {
+  background: rgba(0, 0, 0, 0);
+  color: #fff;
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 14px 35px;
+  text-transform: uppercase;
+  font-weight: 200;
+  border-radius: 0;
+}
 .btn-main.btn-icon i, .btn-icon.btn-small i, .btn-icon.btn-transparent i, .btn-icon.btn-solid-border i {
   font-size: 16px;
   vertical-align: middle;

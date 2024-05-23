@@ -214,6 +214,8 @@ def edit_product(request, slug):
             )
             image.image = image_file
             image.save()
+            
+        return redirect("vendor_dashboard")
 
     title = f"{product.brand_name} {product.name}"
     context = {"categories": categories, "product": product, "title": title}

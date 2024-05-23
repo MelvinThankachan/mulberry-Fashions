@@ -114,25 +114,22 @@
                                                                                 {% endif %}
                                                                             </p>
                                                                             </div>
-                                                                                <!-- candcel order Modal -->
-                                                                                <div class="modal product-modal fade" id="cancel-order-item-modal-{{ order_item.id }}">
-                                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                        <i class="tf-ion-close"></i>
-                                                                                    </button>
-                                                                                    <div class="modal-dialog " role="document">
+                                                                                
+                                                                                <div class="modal fade" id="cancel-order-item-modal-{{ order_item.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                                                    <div class="modal-dialog" role="document">
                                                                                         <div class="modal-content">
                                                                                             <div class="modal-body">
-                                                                                                <div class="row">
-                                                                                                <h4 class="modal-title text-center">Do you want to cancel this order?</h4>
-                                                                                                <div class="modal-body">
-                                                                                                </div>
+                                                                                                <h3 class="modal-title">Do you want to remove this address?</h3>
+                                                                                                {% comment %} <h4>{{ address.address_text|linebreaksbr }}</h4> {% endcomment %}
+                                                                                                <br>
+                                                                                                <p>If you are currently using this address for any active orders, removing it may result in potential delivery delays or errors. Are you sure you want to proceed with removing this address?</p>
                                                                                                 <div class="modal-footer">
-                                                                                                    <a href="{% url "cancel_order_item" order_item.id %}" type="button" class="btn btn-danger">Cancel</a>
+                                                                                                    <a href="{% url "cancel_order_item" order_item.id %}" type="button" class="btn btn-main">Cancel</a>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
-                                                                                </div><!-- cancel order view modal -->
+                                                                                </div>
                                                                         </div>
 
 
@@ -140,19 +137,25 @@
                                                                     <hr>
                                                                     <ul class="summary-prices">
                                                                         <li>
-                                                                            <span>Subtotal:</span>
-                                                                            <span class="price">₹ {{ order.sub_total }}</span>
-                                                                        </li>
-                                                                        <li>
-                                                                            <span>Shipping:</span>
-                                                                            <span>Free</span>
+                                                                            <span class="d-flex justify-content-between">
+                                                                                <span>Subtotal:</span>
+                                                                                <span>₹ {{ order.sub_total }}</span>
+                                                                            </span>
                                                                         </li>
                                                                         {% if order.discount > 0 %}
                                                                             <li>
-                                                                                <span>Discount:</span>
-                                                                                <span>{{ order.discount }}</span>
+                                                                                <span class="d-flex justify-content-between">
+                                                                                    <span>Discount:</span>
+                                                                                    <span>{{ order.discount }}</span>
+                                                                                </span>
                                                                             </li>
                                                                         {% endif %}
+                                                                        <li>
+                                                                            <span class="d-flex justify-content-between">
+                                                                                <span>Shipping:</span>
+                                                                                <span>Free</span>
+                                                                            </span>
+                                                                        </li>
                                                                     </ul>
                                                                     <div class="summary-total">
                                                                         <span>Total</span>
@@ -171,7 +174,7 @@
                                                                             <p class="h4">Order Date:</p>
                                                                         </div>
                                                                         <div class="delivery-address  pull-left" style="margin:1rem; padding-top:1rem;">
-                                                                            <p>COD</p>
+                                                                            <p>{{ order.payment_method }}</p>
                                                                             <p>{{ order.created_at|date:"Y-m-d" }}</p>
                                                                         </div>
                                                                     </div>

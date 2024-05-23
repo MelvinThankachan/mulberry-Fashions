@@ -3,11 +3,11 @@ import razorpay
 from django.conf import settings
 from customer.models import Order, Cart, CartItem
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.csrf import csrf_exempt
 from accounts.models import Customer
 from django.contrib import messages
-from customer.views import create_order
+from customer.views import create_order, customer_login_required
 
 
 # Customer Payment Session
@@ -21,6 +21,7 @@ razorpay_client = razorpay.Client(
 )
 
 
+@customer_login_required
 def razorpay_order_creation(request, amount):
     currency = "INR"
     amount = int(amount) * 100
@@ -45,10 +46,11 @@ def razorpay_order_creation(request, amount):
 
 
 @csrf_exempt
+@customer_login_required
 def razorpay_paymenthandler(request):
     # Ensure CSRF protection
     if request.method != "POST":
-        return HttpResponseBadRequest("Invalid Request Method")
+        raise Http404("Invalid Request Method")
 
     try:
         # Get the required parameters from the POST request
@@ -66,11 +68,11 @@ def razorpay_paymenthandler(request):
             result = razorpay_client.utility.verify_payment_signature(params_dict)
             if result:
                 if "pay_now" in request.session:
-                    is_order_updated= pay_now_update(request)
+                    is_order_updated = pay_now_update(request)
                     print(is_order_updated)
                 else:
                     is_order_created = create_order(request)
-                return render(request, "customer/customer-payment-success.html")
+                return redirect("payment_success")
             else:
                 error_message = "Payment Failed. Please try again."
                 messages.error(request, error_message)
@@ -90,23 +92,34 @@ def razorpay_paymenthandler(request):
         return HttpResponse(f"Payment Failed {error}", status=500)
 
 
-
+@customer_login_required
 def cash_on_delivery(request):
     is_order_created = create_order(request)
     if is_order_created:
-        return render(request, "customer/customer-payment-success.html")
+        return redirect("payment_success")
     else:
         error_message = "Something went wrong. Please try again."
         messages.error(request, error_message)
         return redirect("checkout")
 
 
+@customer_login_required
+def payment_success(request):
+    if "address_id" in request.session:
+        del request.session["address_id"]
+    if "payment_method" in request.session:
+        del request.session["payment_method"]
+    return render(request, "customer/customer-payment-success.html")
+
+@customer_login_required
 def pay_now(request, order_id):
     order = Order.objects.get(id=order_id)
     request.session["pay_now"] = "pay_now"
     request.session["order_id"] = order_id
     return redirect("razorpay_order_creation", amount=order.total_amount)
 
+
+@customer_login_required
 def pay_now_update(request):
     try:
         order_id = request.session.get("order_id")
@@ -117,9 +130,7 @@ def pay_now_update(request):
         del request.session["pay_now"]
         del request.session["order_id"]
         return True
-    
+
     except Exception as e:
         print(e)
         return False
-
-

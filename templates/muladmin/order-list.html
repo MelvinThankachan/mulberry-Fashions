@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <h1 class="col-md-7">Orders</h1>
-        <form class="form-inline" method="post">
+        {% comment %} <form class="form-inline" method="post">
             {% csrf_token %}
             <div class="form-group mr-2">
                 <label for="filter_option" class="mr-2">Filter by:</label>
@@ -18,7 +18,7 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-sm btn-primary">Apply Filter</button>
-        </form>
+        </form> {% endcomment %}
     </div>
 </div>
 

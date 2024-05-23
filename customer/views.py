@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect
 from accounts.models import Customer
 from django.http import HttpResponse
 from .models import Cart, CartItem, Address, Order, OrderItem, FavouriteItem, Wallet
-from muladmin.models import Coupon
+from muladmin.models import Coupon, CategoryOffer
 from product.models import Product, Inventory
 from .utils import list_of_states_in_india
 from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth import logout
+from mulberry.views import get_next_url
 
 
 def customer_login_required(func):
@@ -279,7 +280,7 @@ def cancel_order(request, order_id):
 
     return redirect("customer_orders")
 
-
+@customer_login_required
 def cancel_order_item(request, order_item_id):
     order_item = OrderItem.objects.get(id=order_item_id)
     wallet, created = Wallet.objects.get_or_create(customer__id=request.user.id)
@@ -318,19 +319,21 @@ def favourites(request):
 
 @customer_login_required
 def add_to_favourite(request, product_id):
+    next_url = get_next_url(request)
     customer = Customer.objects.get(id=request.user.id)
     product = Product.objects.get(id=product_id)
     favourite_item, created = FavouriteItem.objects.get_or_create(
         customer=customer, product=product
     )
-    return redirect("favourites")
+    return redirect(next_url)
 
 
 @customer_login_required
 def remove_favourite_item(request, favourite_item_id):
+    next_url = get_next_url(request)
     favourite_item = FavouriteItem.objects.get(id=favourite_item_id)
     favourite_item.delete()
-    return redirect("favourites")
+    return redirect(next_url)
 
 
 # Customer Cart Session
@@ -383,8 +386,7 @@ def add_to_cart(request, product_id):
             favourite_item = FavouriteItem.objects.get(
                 customer=customer, product=product
             )
-            if favourite_item:
-                favourite_item.delete()
+            favourite_item.delete()
         except Exception as e:
             print(e)
 
@@ -439,6 +441,13 @@ def checkout(request):
     cart, cart_created = Cart.objects.get_or_create(customer=customer)
     cart_items = CartItem.objects.filter(cart=cart)
     total_amount = 0
+    total_offer = 0
+    selected_address_id = False
+    selected_payment_method = False
+    if "address_id" in request.session:
+        selected_address_id = int(request.session.get("address_id"))
+    if "payment_method" in request.session:
+        selected_payment_method = request.session.get("payment_method")
 
     if not cart_items:
         return redirect("cart")
@@ -447,10 +456,18 @@ def checkout(request):
         cart_item.product.primary_image = cart_item.product.product_images.filter(
             priority=1
         ).first()
+        offer = 0
+        if CategoryOffer.objects.filter(category=cart_item.product.main_category).exists():
+            category_offer = CategoryOffer.objects.get(category=cart_item.product.main_category)
+            offer = category_offer.discount
 
-        total_amount += cart_item.quantity * cart_item.inventory.price
+        amount = cart_item.quantity * cart_item.inventory.price
+        total_amount += amount
+        total_offer += round(amount * offer / 100)
 
     cart.total_amount = total_amount
+    cart.total_offer = total_offer
+    cart.remaining_amount = total_amount - total_offer
 
     addresses = Address.objects.filter(customer=customer)
 
@@ -460,6 +477,8 @@ def checkout(request):
         "cart": cart,
         "addresses": addresses,
         "states": list_of_states_in_india,
+        "selected_address_id":selected_address_id,
+        "selected_payment_method":selected_payment_method,
     }
     return render(request, "customer/checkout.html", context)
 

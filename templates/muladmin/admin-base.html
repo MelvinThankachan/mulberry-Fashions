@@ -194,6 +194,31 @@ dash{% load static %}
                   </ul>
                 </li>
 
+                
+                <li class="has-sub {% if current_page == 'offer_list' or current_page == 'add_offer' %}active expand{% endif %}">
+                  <a class="sidenav-item-link" href="javascript:void(0)" data-toggle="collapse" data-target="#offers"
+                    aria-expanded="false" aria-controls="offers">
+                    <i class="mdi mdi-ticket-percent"></i>
+                    <span class="nav-text">Offers</span> <b class="caret"></b>
+                  </a>
+    
+                  <ul class="collapse {% if current_page == 'offer_list' or current_page == 'add_offer' %}show{% endif %}" id="offers" data-parent="#sidebar-menu">
+                    <div class="sub-menu">
+                      <li class="{% if current_page == 'offer_list' %}active{% endif %}">
+                        <a class="sidenav-item-link" href="{% url "offer_list" %}">
+                          <span class="nav-text">Category Offers</span>
+                        </a>
+                      </li>
+    
+                      <li class="{% if current_page == 'add_offer' %}active{% endif %}">
+                        <a class="sidenav-item-link" href="{% url "add_offer" %}">
+                          <span class="nav-text">Add Category Offer</span>
+                        </a>
+                      </li>
+                    </div>
+                  </ul>
+                </li>
+
                 <li class="{% if current_page == "product_list" %}active{% endif %}">
                   <a href="{% url 'product_list' %}">
                     <i class="mdi mdi-tshirt-crew-outline"></i>

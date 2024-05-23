@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.db.models import F, Sum, Q
 from customer.models import OrderItem, FavouriteItem
+from muladmin.models import CategoryOffer
 
 
 # Create your views here.
@@ -115,11 +116,22 @@ def shop(request):
 
 def product_page(request, slug):
     product = Product.approved_objects.get(slug=slug)
+    title = product
     product_images = ProductImage.objects.filter(product=product).order_by("priority")
     inventory = Inventory.objects.filter(product=product, stock__gt=0)
-    title = product
+    if FavouriteItem.objects.filter(customer__id = request.user.id, product=product).exists():
+        product.is_favourite = True
+    else:
+        product.is_favourite = False
+
+    offer = 0
+    if CategoryOffer.objects.filter(category = product.main_category).exists():
+        category_offer = CategoryOffer.objects.get(category=product.main_category)
+        offer = category_offer.discount
+    
     context = {
         "product": product,
+        "offer": offer,
         "inventory": inventory,
         "product_images": product_images,
         "title": title,

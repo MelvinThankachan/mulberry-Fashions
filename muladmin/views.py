@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from accounts.models import Customer, Vendor, Account
 from product.models import Category, Product, Inventory, ProductImage
 from customer.models import OrderItem, Order
-from muladmin.models import Coupon
+from muladmin.models import Coupon, CategoryOffer
 from django.utils.text import slugify
 from django.contrib import messages
 from django.http import HttpResponse
@@ -45,8 +45,12 @@ def admin_dashboard(request):
         product.primary_image = primary_image
         product.total_quantity = product_info["total_quantity"]
         top_products.append(product)
-    
-    top_categories_info = Product.objects.values('main_category__id').annotate(total_quantity=Coalesce(Sum('orderitem__quantity'), 0)).order_by('-total_quantity')[:10]
+
+    top_categories_info = (
+        Product.objects.values("main_category__id")
+        .annotate(total_quantity=Coalesce(Sum("orderitem__quantity"), 0))
+        .order_by("-total_quantity")[:10]
+    )
 
     top_categories = []
 
@@ -55,10 +59,14 @@ def admin_dashboard(request):
         category.total_quantity = category_info["total_quantity"]
         top_categories.append(category)
 
-    top_brands = Product.objects.values('brand_name').annotate(total_quantity=Coalesce(Sum('orderitem__quantity'), 0)).order_by('-total_quantity')[:10]
+    top_brands = (
+        Product.objects.values("brand_name")
+        .annotate(total_quantity=Coalesce(Sum("orderitem__quantity"), 0))
+        .order_by("-total_quantity")[:10]
+    )
 
     # Line chart for revenue for last year
-    
+
     end_date = date.today()
     start_date = end_date - timedelta(days=365)
     months = []
@@ -67,17 +75,21 @@ def admin_dashboard(request):
     current_date = start_date
     while current_date <= end_date:
         month_start_date = current_date.replace(day=1)
-        next_month_start_date = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+        next_month_start_date = (
+            current_date.replace(day=1) + timedelta(days=32)
+        ).replace(day=1)
 
-        month_label = month_start_date.strftime('%b')
+        month_label = month_start_date.strftime("%b")
 
-        total_revenue = Order.objects.filter(created_at__gte=month_start_date, created_at__lt=next_month_start_date).aggregate(total=Sum('total_amount'))['total']
+        total_revenue = Order.objects.filter(
+            created_at__gte=month_start_date, created_at__lt=next_month_start_date
+        ).aggregate(total=Sum("total_amount"))["total"]
 
         months.append(month_label)
         revenue_by_month.append(total_revenue or 0)
 
         current_date = next_month_start_date
-    
+
     total_yearly_revenue = sum(revenue_by_month)
 
     # Line chart for the month
@@ -91,22 +103,24 @@ def admin_dashboard(request):
 
     current_date = start_date
     while current_date <= end_date:
-        total_revenue = Order.objects.filter(created_at__date=current_date).aggregate(total=Sum('total_amount'))['total']
+        total_revenue = Order.objects.filter(created_at__date=current_date).aggregate(
+            total=Sum("total_amount")
+        )["total"]
 
         days.append(current_date.day)
         revenue_by_day.append(total_revenue or 0)
 
         current_date += timedelta(days=1)
-    
+
     total_monthly_revenue = sum(revenue_by_day)
 
     # To count the orders according to the status
     status_counts = {
-        'pending': OrderItem.objects.filter(status='pending').count(),
-        'confirmed': OrderItem.objects.filter(status='confirmed').count(),
-        'shipped': OrderItem.objects.filter(status='shipped').count(),
-        'delivered': OrderItem.objects.filter(status='delivered').count(),
-        'cancelled': OrderItem.objects.filter(status='cancelled').count(),
+        "pending": OrderItem.objects.filter(status="pending").count(),
+        "confirmed": OrderItem.objects.filter(status="confirmed").count(),
+        "shipped": OrderItem.objects.filter(status="shipped").count(),
+        "delivered": OrderItem.objects.filter(status="delivered").count(),
+        "cancelled": OrderItem.objects.filter(status="cancelled").count(),
     }
 
     for s in status_counts:
@@ -119,12 +133,13 @@ def admin_dashboard(request):
         "top_categories": top_categories,
         "top_brands": top_brands,
         "months": months,
-        "revenue_by_month":revenue_by_month,
+        "revenue_by_month": revenue_by_month,
         "days": days,
-        "revenue_by_day":revenue_by_day,
-        "total_yearly_revenue":total_yearly_revenue,
-        "total_monthly_revenue":total_monthly_revenue,
-        "status_counts":status_counts,
+        "revenue_by_day": revenue_by_day,
+        "total_yearly_revenue": total_yearly_revenue,
+        "total_monthly_revenue": total_monthly_revenue,
+        "status_counts": status_counts,
+        "total_orders": OrderItem.objects.all().count(),
     }
     return render(request, "muladmin/admin-dashboard.html", context)
 
@@ -509,7 +524,9 @@ def add_coupon(request):
         active = request.POST.get("active")
 
         if minimum_purchase < discount:
-            error_message = "The discount should be less than the minimum purchase limit"
+            error_message = (
+                "The discount should be less than the minimum purchase limit"
+            )
             messages.error(request, error_message)
             return redirect("add_coupon")
 
@@ -548,7 +565,9 @@ def edit_coupon(request, id):
         print("Active :", active)
 
         if minimum_purchase < discount:
-            error_message = "The discount should be less than the minimum purchase limit"
+            error_message = (
+                "The discount should be less than the minimum purchase limit"
+            )
             messages.error(request, error_message)
             return redirect("edit_coupon", id=coupon.id)
 
@@ -576,3 +595,106 @@ def delete_coupon(request, id):
     coupon = Coupon.objects.get(id=id)
     coupon.delete()
     return redirect("coupon_list")
+
+
+@admin_login_required
+def offer_list(request):
+    title = "Offers"
+    current_page = "offer_list"
+    
+    offers = CategoryOffer.objects.all().order_by("discount")
+    request.session["selection"] = "all_offers"
+
+    if request.method == "POST":
+        filter_option = request.POST.get("filter_option")
+        if filter_option == "active_offers":
+            offers = CategoryOffer.objects.filter(is_active=True)
+            request.session["selection"] = "active_offers"
+        if filter_option == "inactive_offers":
+            offers = CategoryOffer.objects.filter(is_active=False)
+            request.session["selection"] = "inactive_offers"
+
+    context = {"title": title, "current_page": current_page, "offers": offers}
+    return render(request, "muladmin/offer-list.html", context)
+
+
+@admin_login_required
+def add_offer(request):
+    title = "Add Offer"
+    current_page = "add_offer"
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        category_id = request.POST.get("category_id")
+        discount = int(request.POST.get("discount"))
+        active = request.POST.get("active")
+        category = Category.objects.get(id = category_id)
+
+
+        if discount > 100 or discount < 1:
+            error_message = (
+                "Invalid Discount Percentage"
+            )
+            messages.error(request, error_message)
+            return redirect("add_offer")
+
+        if CategoryOffer.objects.filter(category=category).exists():
+            error_message = "An offer already exists for this category"
+            messages.error(request, error_message)
+            return redirect("add_offer")
+
+        # Creating a new offer
+        new_offer = CategoryOffer.objects.create(
+            category=category,
+            discount=discount,
+            is_active=active,
+        )
+
+        return redirect("offer_list")
+    
+    context = {"title": title, "current_page": current_page, "categories": categories}
+    return render(request, "muladmin/offer-form.html", context)
+
+
+@admin_login_required
+def edit_offer(request, id):
+    title = "Edit Offer"
+    current_page = "edit_offer"
+    offer = CategoryOffer.objects.get(id=id)
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        category_id = request.POST.get("category_id")
+        discount = int(request.POST.get("discount"))
+        active = request.POST.get("active")
+        category = Category.objects.get(id = category_id)
+
+        if discount > 100 or discount < 1:
+            error_message = (
+                "Invalid Discount Percentage"
+            )
+            messages.error(request, error_message)
+            return redirect("edit_offer", id=offer.id)
+
+        if CategoryOffer.objects.filter(category=category).exclude(id=offer.id).exists():
+            error_message = "An offer already exists for this category"
+            messages.error(request, error_message)
+            return redirect("edit_offer", id=offer.id)
+
+        # Updating Offer
+        offer.category = category
+        offer.discount = discount
+        offer.is_active = active
+        offer.save()
+
+        return redirect("offer_list")
+
+    context = {"title": title, "current_page": current_page, "offer": offer, "categories": categories}
+    return render(request, "muladmin/offer-form.html", context)
+
+
+@admin_login_required
+def delete_offer(request, id):
+    offer = CategoryOffer.objects.get(id=id)
+    offer.delete()
+    return HttpResponse("Delete Offer")
