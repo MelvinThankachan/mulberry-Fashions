@@ -52,9 +52,9 @@
                                     <tr>
                                         <th>Order Item ID</th>
                                         <th>Product</th>
-                                        <th>Price</th>
-                                        <th>quantity</th>
-                                        <th>status</th>
+                                        <th class="text-center">Unit Price</th>
+                                        <th class="text-center">quantity</th>
+                                        <th class="text-center">Refund amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,15 +62,9 @@
                                         <tr>
                                             <td>#{{ order_item.id }}</td>
                                             <td> {{ order_item.product.name }}</td>
-                                            <td> ₹ {{ order_item.inventory.price }}</td>
-                                            <td> {{ order_item.quantity }}</td>
-                                            <td class="text-center">
-                                                {% if order_item.status == "cancelled" %}
-                                                cancelled
-                                                {% else %}
-                                                pending
-                                                {% endif %}
-                                            </td>
+                                            <td class="text-center"> ₹ {{ order_item.inventory.price }}</td>
+                                            <td class="text-center"> {{ order_item.quantity }}</td>
+                                            <td class="text-center">₹ {% widthratio order_item.quantity 1 order_item.inventory.price %}</td>
                                         </tr>
 
                                     {% endfor %}

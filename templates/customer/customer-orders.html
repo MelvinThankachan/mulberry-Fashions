@@ -76,7 +76,7 @@
                                                     <div class="modal-body">
                                                         <div class="row">
                                                             <h1 class="widget-title">Order Summary</h1>
-                                                            <button class="btn btn-primary" id="download-invoice-{{order.id}}">Download Invoice</button>
+                                                            <a class="btn btn-main btn-small" href="{% url "invoice" order.id %}" >Click here to download Invoice</a>
                                                             <hr>
                                                             <div class="product-checkout-details" id="order-invoice-{{order.id}}">
                                                                 <div class="block">

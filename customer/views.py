@@ -500,9 +500,21 @@ def place_order(request):
         cart = Cart.objects.get(customer=request.user)
         cart_items = CartItem.objects.filter(cart=cart)
         total_amount = 0
+        total_offer = 0
 
         for cart_item in cart_items:
-            total_amount += cart_item.quantity * cart_item.inventory.price
+            offer = 0
+            if CategoryOffer.objects.filter(category=cart_item.product.main_category).exists():
+                category_offer = CategoryOffer.objects.get(category=cart_item.product.main_category)
+                offer = category_offer.discount
+
+            amount = cart_item.quantity * cart_item.inventory.price
+            total_amount += amount
+            total_offer += round(amount * offer / 100)
+        
+
+        total_amount -= total_offer
+
 
         if coupon_code != "":
             if Coupon.objects.filter(code=coupon_code, is_active=True).exists():
@@ -552,16 +564,27 @@ def create_order(request):
         cart = Cart.objects.get(customer=customer)
         cart_items = CartItem.objects.filter(cart=cart)
         total_amount = 0
+        total_offer = 0
 
         for cart_item in cart_items:
-            total_amount += cart_item.quantity * cart_item.inventory.price
+            offer = 0
+            if CategoryOffer.objects.filter(category=cart_item.product.main_category).exists():
+                category_offer = CategoryOffer.objects.get(category=cart_item.product.main_category)
+                offer = category_offer.discount
 
+            amount = cart_item.quantity * cart_item.inventory.price
+            total_amount += amount
+            total_offer += round(amount * offer / 100)
+
+        total_amount -= total_offer
         cart.total_amount = total_amount
+        cart.total_offer = total_offer
 
         order = Order.objects.create(
             customer=customer,
             address=address.address_text,
             total_amount=cart.total_amount,
+            offer=cart.total_offer,
         )
 
         if coupon_code:
@@ -621,3 +644,21 @@ def customer_wallet(request):
 
     context = {"customer": customer, "wallet": wallet, "order_items": order_items}
     return render(request, "customer/customer-wallet.html", context)
+
+
+@customer_login_required
+def invoice(request, order_id):
+    order = Order.objects.get(id=order_id)
+    order.order_items = OrderItem.objects.filter(order=order)
+    order.sub_total = 0
+
+    for order_item in order.order_items:
+        order_item.product.primary_image = order_item.product.product_images.filter(
+            priority=1
+        ).first()
+        order.sub_total += order_item.quantity * order_item.inventory.price
+    
+    context = {"order":order}
+    return render(request, "customer/invoice.html", context)
+
+

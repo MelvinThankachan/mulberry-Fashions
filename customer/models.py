@@ -66,6 +66,7 @@ class Order(models.Model):
     address = models.TextField()
     total_amount = models.PositiveBigIntegerField()
     discount = models.PositiveBigIntegerField(null=True, blank=True)
+    offer = models.PositiveBigIntegerField(null=True, blank=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     is_paid = models.BooleanField(default=False)
     payment_method = models.TextField()
