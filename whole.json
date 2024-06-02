@@ -3130,23 +3130,6 @@
     }
   },
   {
-    "model": "customer.address",
-    "pk": 19,
-    "fields": {
-      "customer": 3,
-      "name": "Judewin",
-      "mobile": 8289991281,
-      "pincode": 683580,
-      "state": "Kerala",
-      "building": "Cheerankan House",
-      "street": "Sreemoolanagaram",
-      "city": "",
-      "district": "Eranakulam",
-      "address_text": "Judewin\nCheerankan House\nSreemoolanagaram\nEranakulam, Kerala\nPincode - 683580\nMobile: 8289991281",
-      "is_default": false
-    }
-  },
-  {
     "model": "customer.order",
     "pk": 10,
     "fields": {
