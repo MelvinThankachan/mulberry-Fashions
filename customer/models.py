@@ -33,7 +33,7 @@ class Address(models.Model):
             message="Enter a valid name."
         )]
     )
-    mobile = models.PositiveIntegerField(
+    mobile = models.PositiveBigIntegerField(
         validators=[MinValueValidator(1000000000), MaxValueValidator(9999999999)]
     )
     pincode = models.PositiveIntegerField(
