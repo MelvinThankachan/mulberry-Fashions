@@ -85,7 +85,7 @@ WSGI_APPLICATION = "mulberry.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mulberry",
+        "NAME": "mulberry_db",
         "USER": "mulberry",
         "PASSWORD": "mulberry@123",
         "HOST": "localhost",
