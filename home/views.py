@@ -34,7 +34,6 @@ def shop(request):
     selected_category = request.session.get("selected_category", "All Categories")
     selected_brand = request.session.get("selected_brand", "All Brands")
 
-    print(request.GET)
     if "search" in request.GET:
         search_term = request.GET.get("search")
         products = (
@@ -58,7 +57,6 @@ def shop(request):
         request.session[selected_brand] = selected_brand
         sort_by = request.POST.get("sort_by")
         request.session[sort_by] = sort_by
-        print(f"sortby:{sort_by}\ncategory:{selected_category}\nbrand:{selected_brand}")
 
         if selected_category != "All Categories":
             category = Category.objects.get(name=selected_category)
