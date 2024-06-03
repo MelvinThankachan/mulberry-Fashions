@@ -42,8 +42,6 @@ def dashboard(request):
 
     for order in orders:
         order.order_items = OrderItem.objects.filter(order=order)
-        for order_item in order.order_items:
-            print(order_item)
 
     try:
         customer.address = Address.objects.get(customer=customer, is_default=True)
@@ -227,7 +225,7 @@ def default_address(request, address_id):
         address_default.is_default = False
         address_default.save()
     except Exception as e:
-        print(e)
+        pass
 
     address.is_default = True
     address.save()
@@ -268,9 +266,6 @@ def cancel_order(request, order_id):
         if order_item.status != "cancelled":
             order_item.status = "cancelled"
             order_item.inventory.stock += order_item.quantity
-            if order.is_paid:
-                print("Order is paid")
-
             order_item.inventory.save()
             # order_item.save()
             
@@ -289,7 +284,6 @@ def cancel_order_item(request, order_item_id):
         order_item.status = "cancelled"
         if order_item.order.is_paid:
             wallet.balance += order_item.quantity*order_item.inventory.price
-        print(wallet.balance, "balance")
         order_item.inventory.stock += order_item.quantity
         order_item.inventory.save()
         order_item.save()
@@ -362,7 +356,6 @@ def cart(request):
 @customer_login_required
 def add_to_cart(request, product_id):
     if request.method == "POST":
-        print(request.POST)
         customer = Customer.objects.get(email=request.user.email)
         product = Product.objects.get(pk=product_id)
         cart, cart_created = Cart.objects.get_or_create(customer=customer)
@@ -388,7 +381,7 @@ def add_to_cart(request, product_id):
             )
             favourite_item.delete()
         except Exception as e:
-            print(e)
+            pass
 
         # Managing the maximum number of products per customer
         if not cart_item_created:
@@ -489,13 +482,11 @@ def checkout(request):
 @customer_login_required
 def place_order(request):
     if request.method == "POST":
-        print(request.POST)
         address_id = request.POST.get("address_id")
         payment_method = request.POST.get("payment_method")
         request.session["address_id"] = address_id
         request.session["payment_method"] = payment_method
         coupon_code = request.POST.get("coupon_code").upper()
-        print(coupon_code)
 
         cart = Cart.objects.get(customer=request.user)
         cart_items = CartItem.objects.filter(cart=cart)
@@ -588,7 +579,6 @@ def create_order(request):
         )
 
         if coupon_code:
-            print(coupon_code)
             coupon = Coupon.objects.get(code=coupon_code)
             order.discount = discount
             order.coupon = coupon
@@ -598,8 +588,6 @@ def create_order(request):
             del request.session["discount"]
             del request.session["coupon_code"]
             coupon.save()
-
-        print(f"order_id: {order.id}")
 
         for cart_item in cart_items:
             OrderItem.objects.create(
@@ -628,7 +616,6 @@ def create_order(request):
 
         return True
     except Exception as e:
-        print(e)
         return False
 
 
@@ -640,7 +627,6 @@ def customer_wallet(request):
     customer = Customer.objects.get(id=request.user.id)
     wallet, is_wallet_created = Wallet.objects.get_or_create(customer=customer)
     order_items = OrderItem.objects.filter(order__customer=customer, status="cancelled").order_by("-id")
-    print(order_items)
 
     context = {"customer": customer, "wallet": wallet, "order_items": order_items}
     return render(request, "customer/customer-wallet.html", context)

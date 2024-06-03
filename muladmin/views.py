@@ -123,9 +123,6 @@ def admin_dashboard(request):
         "cancelled": OrderItem.objects.filter(status="cancelled").count(),
     }
 
-    for s in status_counts:
-        print(s, status_counts[s])
-
     context = {
         "current_page": current_page,
         "title": title,
@@ -562,7 +559,6 @@ def edit_coupon(request, id):
         quantity = request.POST.get("quantity")
         minimum_purchase = request.POST.get("minimum_purchase")
         active = request.POST.get("active")
-        print("Active :", active)
 
         if minimum_purchase < discount:
             error_message = (

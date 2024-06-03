@@ -27,7 +27,6 @@ def razorpay_order_creation(request, amount):
     amount = int(amount) * 100
 
     data = {"amount": amount, "currency": currency, "receipt": str(request.user.id)}
-    print(data)
     razorpay_order = razorpay_client.order.create(data)
 
     razorpay_order_id = razorpay_order["id"]
@@ -69,7 +68,6 @@ def razorpay_paymenthandler(request):
             if result:
                 if "pay_now" in request.session:
                     is_order_updated = pay_now_update(request)
-                    print(is_order_updated)
                 else:
                     is_order_created = create_order(request)
                 return redirect("payment_success")
@@ -78,7 +76,6 @@ def razorpay_paymenthandler(request):
                 messages.error(request, error_message)
                 return redirect("checkout")
         except Exception as e:
-            print(e)
             error_message = "Payment Failed. Please try again."
             messages.error(request, error_message)
             return redirect("checkout")
@@ -132,5 +129,4 @@ def pay_now_update(request):
         return True
 
     except Exception as e:
-        print(e)
         return False

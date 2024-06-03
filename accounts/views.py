@@ -216,7 +216,6 @@ def admin_login(request):
 
         try:
             account = Account.objects.get(email=email)
-            print("tried to fetch")
             if not account.is_superadmin:
                 error_message = "Access denied. Please check your email and password"
                 messages.error(request, error_message)
