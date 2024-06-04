@@ -239,6 +239,7 @@
 							role="button" aria-haspopup="true" aria-expanded="false">Accounts <span
 								class="tf-ion-ios-arrow-down"></span></a>
 						<ul class="dropdown-menu">
+							<li><a href="{% url "test_modal" %}">Test</a></li>
 							{% if user.is_authenticated and user.is_customer%}
 							<li><a href="{% url "customer_dashboard" %}">Dashboard</a></li>
 							<li><a href="{% url "customer_logout" %}">Logout</a></li>

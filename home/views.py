@@ -18,7 +18,9 @@ def home(request):
         small_size = product.inventory_sizes.get(size="S")
         small_size_price = small_size.price
         product.price = small_size_price
-        if FavouriteItem.objects.filter(customer__id=request.user.id, product=product).exists():
+        if FavouriteItem.objects.filter(
+            customer__id=request.user.id, product=product
+        ).exists():
             product.is_favourite = True
         else:
             product.is_favourite = False
@@ -65,7 +67,7 @@ def shop(request):
                 .filter(inventory_sizes__size="S")
                 .annotate(price=F("inventory_sizes__price"))
             )
-            
+
         if selected_brand != "All Brands":
             products = (
                 Product.approved_objects.filter(brand_name=selected_brand)
@@ -84,12 +86,16 @@ def shop(request):
         elif sort_by == "zZ - aA":
             products = products.order_by("-brand_name")
         elif sort_by == "Popularity":
-            products = products.annotate(total_quantity_ordered=Sum('orderitem__quantity'))
+            products = products.annotate(
+                total_quantity_ordered=Sum("orderitem__quantity")
+            )
             products = products.order_by("-total_quantity_ordered")
 
     for product in products:
         product.primary_image = product.product_images.filter(priority=1).first()
-        if FavouriteItem.objects.filter(customer__id=request.user.id, product=product).exists():
+        if FavouriteItem.objects.filter(
+            customer__id=request.user.id, product=product
+        ).exists():
             product.is_favourite = True
         else:
             product.is_favourite = False
@@ -100,7 +106,7 @@ def shop(request):
     paged_products = paginator.get_page(page)
 
     categories = Category.objects.all()
-    brands = Product.approved_objects.values_list('brand_name', flat=True).distinct()
+    brands = Product.approved_objects.values_list("brand_name", flat=True).distinct()
     context = {
         "products": paged_products,
         "categories": categories,
@@ -117,16 +123,18 @@ def product_page(request, slug):
     title = product
     product_images = ProductImage.objects.filter(product=product).order_by("priority")
     inventory = Inventory.objects.filter(product=product, stock__gt=0)
-    if FavouriteItem.objects.filter(customer__id = request.user.id, product=product).exists():
+    if FavouriteItem.objects.filter(
+        customer__id=request.user.id, product=product
+    ).exists():
         product.is_favourite = True
     else:
         product.is_favourite = False
 
     offer = 0
-    if CategoryOffer.objects.filter(category = product.main_category).exists():
+    if CategoryOffer.objects.filter(category=product.main_category).exists():
         category_offer = CategoryOffer.objects.get(category=product.main_category)
         offer = category_offer.discount
-    
+
     context = {
         "product": product,
         "offer": offer,
@@ -135,3 +143,7 @@ def product_page(request, slug):
         "title": title,
     }
     return render(request, "home/product-page.html", context)
+
+
+def test_modal_view(request):
+    return render(request, "home/test_modal.html")
