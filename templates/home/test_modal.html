@@ -1,12 +1,21 @@
-{% extends "home/base.html" %}
 {% load static %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal | Mulberry Fashions</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/themefisher-font/style.css' %}">
+</head>
+<body>
 
 <div class="container">
     <h1>Test Modal Functionality</h1>
     <!-- Trigger Button -->
-    <button type="button" class="btn btn-main" data-toggle="modal" data-target="#testModal">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#testModal">
         Open Test Modal
     </button>
 
@@ -24,13 +33,18 @@
                     This is a test modal to check functionality in the production server.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-main" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-main">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap JS -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
 
-{% endblock content %}
+</body>
+</html>
