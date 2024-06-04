@@ -7,6 +7,7 @@ __pycache__/
 venv/
 env/
 ENV/
+mulenv/
 
 # Django related
 *.log
@@ -14,6 +15,9 @@ ENV/
 *.pyc
 db.sqlite3
 __pycache__/
+media/
+staticfiles/
+static/
 
 # Secret key
 *.key
