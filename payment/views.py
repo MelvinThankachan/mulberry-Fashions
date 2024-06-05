@@ -30,8 +30,9 @@ def razorpay_order_creation(request, amount):
     razorpay_order = razorpay_client.order.create(data)
 
     razorpay_order_id = razorpay_order["id"]
-    callback_url = request.build_absolute_uri(reverse("razorpay_paymenthandler"))
-
+    current_host = request.get_host()
+    callback_url = current_host + reverse("razorpay_paymenthandler")
+    print(reverse("razorpay_paymenthandler"))
     context = {
         "razorpay_order_id": razorpay_order_id,
         "razorpay_merchant_key": settings.RAZOR_KEY_ID,

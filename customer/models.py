@@ -33,7 +33,7 @@ class Address(models.Model):
             message="Enter a valid name."
         )]
     )
-    mobile = models.PositiveBigIntegerField(
+    mobile = models.PositiveIntegerField(
         validators=[MinValueValidator(1000000000), MaxValueValidator(9999999999)]
     )
     pincode = models.PositiveIntegerField(
@@ -64,9 +64,9 @@ class Order(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     address = models.TextField()
-    total_amount = models.PositiveBigIntegerField()
-    discount = models.PositiveBigIntegerField(null=True, blank=True)
-    offer = models.PositiveBigIntegerField(null=True, blank=True)
+    total_amount = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(null=True, blank=True)
+    offer = models.PositiveIntegerField(null=True, blank=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     is_paid = models.BooleanField(default=False)
     payment_method = models.TextField()

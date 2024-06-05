@@ -116,8 +116,8 @@ def change_password(request):
 def new_address(request):
     if request.method == "POST":
         name = request.POST.get("name").title()
-        pincode = request.POST.get("pincode")
-        mobile = request.POST.get("mobile")
+        pincode = int(request.POST.get("pincode"))
+        mobile = int(request.POST.get("mobile"))
         building = request.POST.get("building").title()
         street = request.POST.get("street").title()
         city = request.POST.get("city").title()
@@ -129,8 +129,8 @@ def new_address(request):
             building,
             street,
             f"{district}, {state}",
-            pincode,
-            f"Mobile: {mobile}",
+            f"Pincode - {str(pincode)}",
+            f"Mobile: {str(mobile)}",
         ]
         if city:
             address_parts.insert(3, city)
@@ -170,8 +170,8 @@ def edit_address(request, address_id):
     address = Address.objects.get(id=address_id)
     if request.method == "POST":
         name = request.POST.get("name").title()
-        pincode = request.POST.get("pincode")
-        mobile = request.POST.get("mobile")
+        pincode = int(request.POST.get("pincode"))
+        mobile = int(request.POST.get("mobile"))
         building = request.POST.get("building").title()
         street = request.POST.get("street").title()
         city = request.POST.get("city").title()
@@ -183,8 +183,8 @@ def edit_address(request, address_id):
             building,
             street,
             f"{district}, {state}",
-            f"Pincode - {pincode}",
-            f"Mobile: {mobile}",
+            f"Pincode: {int(pincode)}",
+            f"Mobile: {int(mobile)}",
         ]
         if city:
             address_parts.insert(3, city)
