@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-b)h3o2^!9-=@0fq+-2qzwfnk5vr2fya_$ll#g0h$#ddw@1gu5="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "35.87.83.2", "0.0.0.0", "localhost", "mulberryfashion.store"]
 

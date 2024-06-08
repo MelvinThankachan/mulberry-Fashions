@@ -31,7 +31,7 @@ def razorpay_order_creation(request, amount):
 
     razorpay_order_id = razorpay_order["id"]
     current_host = request.get_host()
-    callback_url = current_host + reverse("razorpay_paymenthandler")
+    callback_url = reverse("razorpay_paymenthandler")
     context = {
         "razorpay_order_id": razorpay_order_id,
         "razorpay_merchant_key": settings.RAZOR_KEY_ID,
