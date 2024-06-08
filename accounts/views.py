@@ -95,7 +95,7 @@ def customer_login(request):
 
         login(request, authenticated_user)
         target_url = request.session.pop("customer_target_url", reverse("home"))
-        return HttpResponseRedirect(target_url)
+        return redirect("home")
 
     title = "LogIn"
     context = {"title": title}
@@ -193,7 +193,7 @@ def vendor_login(request):
 
         login(request, authenticated_user)
         target_url = request.session.pop("vendor_target_url", reverse("vendor_dashboard"))
-        return HttpResponseRedirect(target_url)
+        return redirect("vendor_dashboard")
 
     title = "Vendor LogIn"
     context = {"title": title}
@@ -233,7 +233,7 @@ def admin_login(request):
 
         login(request, authenticated_user)
         target_url = request.session.pop("admin_target_url", reverse("admin_dashboard"))
-        return HttpResponseRedirect(target_url)
+        return redirect("admin_dashboard")
 
     return render(request, "muladmin/admin-login.html")
 
