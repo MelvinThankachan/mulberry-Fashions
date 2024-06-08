@@ -28,7 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", "35.87.83.2", "0.0.0.0", "localhost", "mulberryfashion.store"]
 
-CSRF_TRUSTED_ORIGINS = ["http://35.87.83.2", "http://mulberryfashion.store"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://35.87.83.2",
+    "http://mulberryfashion.store",
+    "https://mulberryfashion.store"
+]
 
 # Application definition
 

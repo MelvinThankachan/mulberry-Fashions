@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="product-content">    
-        <a href="{% url "product_page" product.slug %}">
+        <a href="{% url "product_page" product.slug %}" target="_blank">
             <h4><strong>{{ product.brand_name }}</strong></h4>
             <p class="truncate">{{ product.name }}</p>
             <p class="price"><strong class="h4">&#8377; {{ product.price }} </strong>

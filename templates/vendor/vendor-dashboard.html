@@ -32,12 +32,12 @@
             <!-- User Name -->
             <h5 class="text-center">{{ user.first_name }}</h5>
             <p>{{ user.date_joined }}</p>
-            <a href="user-profile.html" class="btn btn-main-sm">Edit Profile</a>
+            {% comment %} <a href="user-profile.html" class="btn btn-main-sm">Edit Profile</a> {% endcomment %}
           </div>
           <!-- Dashboard Links -->
           <div class="widget user-dashboard-menu">
             <ul>
-              <li class="active"><a href="dashboard-my-ads.html"><i class="fa fa-user"></i>My Products<span>{{products_count}}</span></a></li>
+              <li class="active"><a href="{% url "vendor_dashboard" %}"><i class="fa fa-user"></i>My Products<span>{{products_count}}</span></a></li>
               <li><a href="{% url "vendor_orders" %}"><i class="fa fa-bookmark-o"></i> Orders
                 <span>5</span></a></li>
               {% comment %} <li><a href="dashboard-archived-ads.html"><i class="fa fa-file-archive-o"></i>Archived Products

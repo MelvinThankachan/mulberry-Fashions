@@ -1,4 +1,4 @@
-dash{% load static %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -759,11 +759,11 @@ dash{% load static %}
               <!-- search form -->
               <div class="search-form d-none d-lg-inline-block">
                 <div class="input-group">
-                  <button type="button" name="search" id="search-btn" class="btn btn-flat">
+                  {% comment %} <button type="button" name="search" id="search-btn" class="btn btn-flat">
                     <i class="mdi mdi-magnify"></i>
-                  </button>
-                  <input type="text" name="query" id="search-input" class="form-control" placeholder="'button', 'chart' etc."
-                    autofocus autocomplete="off" />
+                  </button> {% endcomment %}
+                  {% comment %} <input type="text" name="query" id="search-input" class="form-control" placeholder="'button', 'chart' etc."
+                    autofocus autocomplete="off" /> {% endcomment %}
                 </div>
                 <div id="search-results-container">
                   <ul id="search-results"></ul>
@@ -1227,7 +1227,7 @@ dash{% load static %}
                         </div>
                       </li>
     
-                      <li>  
+                      {% comment %} <li>  
                         <a href="user-profile.html">
                           <i class="mdi mdi-account"></i> My Profile
                         </a>
@@ -1242,7 +1242,7 @@ dash{% load static %}
                       </li>
                       <li class="right-sidebar-in">
                         <a href="javascript:0"> <i class="mdi mdi-settings"></i> Setting </a>
-                      </li>
+                      </li> {% endcomment %}
     
                       <li class="dropdown-footer">
                         <a href="{% url "admin_logout" %}"> <i class="mdi mdi-logout"></i> Log Out</a>

@@ -13,7 +13,7 @@
 						<span class="navbar-toggler-icon"></span>
 					</button>
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
-						<ul class="navbar-nav ml-auto main-nav ">
+						{% comment %} <ul class="navbar-nav ml-auto main-nav ">
 							<li class="nav-item @@home">
 								<a class="nav-link" href="{% url "vendor_dashboard" %}">Home</a>
 							</li>
@@ -76,7 +76,7 @@
 									</li>
 								</ul>
 							</li>
-						</ul>
+						</ul> {% endcomment %}
 						<ul class="navbar-nav ml-auto mt-10">
 							<li class="nav-item">
 								<a class="nav-link text-white add-button" href="{% url "add_product" %}"><i class="fa fa-plus-circle"></i>&nbsp; &nbsp; New Product</a>

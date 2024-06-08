@@ -84,32 +84,30 @@
     <!-- Container Start -->
     <div class="container">
       <div class="row">
-        <div class="col-lg-3 col-md-7 offset-md-1 offset-lg-0 mb-4 mb-lg-0">
+        <div class="text-center">
           <!-- About -->
           <div class="block about">
             <!-- footer logo -->
             <img style="width:200px" src="{% static "images/logo-white.png" %}" alt="logo">
-            <!-- description -->
+            {% comment %} <!-- description -->
             <p class="alt-color">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
               incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.</p>
+              laboris nisi ut aliquip ex ea commodo consequat.</p> {% endcomment %}
           </div>
         </div>
         <!-- Link list -->
-        <div class="col-lg-2 offset-lg-1 col-md-3 col-6 mb-4 mb-lg-0">
+        {% comment %} <div class="col-lg-4 offset-lg-1 col-md-3 col-6 mb-4 mb-lg-0">
           <div class="block">
             <h4>Site Pages</h4>
             <ul>
-              <li><a href="dashboard-my-ads.html">My Ads</a></li>
-              <li><a href="dashboard-favourite-ads.html">Favourite Ads</a></li>
-              <li><a href="dashboard-archived-ads.html">Archived Ads</a></li>
-              <li><a href="dashboard-pending-ads.html">Pending Ads</a></li>
-              <li><a href="terms-condition.html">Terms & Conditions</a></li>
+              <li><a href="{% url "vendor_dashboard" %}">Home</a></li>
+              <li><a href="{% url "vendor_dashboard" %}">My products</a></li>
+              <li><a href="{% url "vendor_orders" %}">Orders</a></li>
             </ul>
           </div>
-        </div>
+        </div> {% endcomment %}
         <!-- Link list -->
-        <div class="col-lg-2 col-md-3 offset-md-1 offset-lg-0 col-6 mb-4 mb-md-0">
+        {% comment %} <div class="col-lg-2 col-md-3 offset-md-1 offset-lg-0 col-6 mb-4 mb-md-0">
           <div class="block">
             <h4>Admin Pages</h4>
             <ul>
@@ -124,9 +122,9 @@
   
             </ul>
           </div>
-        </div>
+        </div> {% endcomment %}
         <!-- Promotion -->
-        <div class="col-lg-4 col-md-7">
+        {% comment %} <div class="col-lg-4 col-md-7">
           <!-- App promotion -->
           <div class="block-2 app-promotion">
             <div class="mobile d-flex  align-items-center">
@@ -141,7 +139,7 @@
               <a href="{% url "vendor_dashboard" %}" class=" ml-3"><img src="{% static "vendor/images/apps/apple-app-store.png" %} " class="img-fluid" alt=""></a>
             </div>
           </div>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
     <!-- Container End -->
@@ -157,16 +155,16 @@
             <p>Copyright &copy; <script>
                 var CurrentYear = new Date().getFullYear()
                 document.write(CurrentYear)
-              </script>. Designed & Developed by <a class="text-white" href="https://themefisher.com">Themefisher</a></p>
+              </script>. Designed by <a class="text-white" href="https://themefisher.com">Themefisher</a> Developed by <a class="text-white" href="https://melvinthankachan.github.io/Melvin-Personal-Website/#about" target="_blank">Melvin M T</p>
           </div>
         </div>
         <div class="col-lg-6">
           <!-- Social Icons -->
           <ul class="social-media-icons text-center text-lg-right">
-            <li><a class="fa fa-facebook" href="https://www.facebook.com/themefisher"></a></li>
-            <li><a class="fa fa-twitter" href="https://www.twitter.com/themefisher"></a></li>
-            <li><a class="fa fa-pinterest-p" href="https://www.pinterest.com/themefisher"></a></li>
-            <li><a class="fa fa-github-alt" href="https://www.github.com/themefisher"></a></li>
+            <li><a class="fa fa-twitter" href="https://x.com/MelvinMT81"></a></li>
+            <li><a class="fa fa-instagram" href="https://www.instagram.com/melvin_thankachan.py/"></a></li>
+            <li><a class="fa fa-github-alt" href="https://github.com/MelvinThankachan"></a></li>
+            <li><a class="fa fa-linkedin" href="https://www.linkedin.com/in/melvin-thankachan-870677215/"></a></li>
           </ul>
         </div>
       </div>
