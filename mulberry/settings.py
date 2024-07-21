@@ -26,12 +26,18 @@ SECRET_KEY = "django-insecure-b)h3o2^!9-=@0fq+-2qzwfnk5vr2fya_$ll#g0h$#ddw@1gu5=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "35.87.83.2", "0.0.0.0", "localhost", "mulberryfashion.store"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "35.87.83.2",
+    "0.0.0.0",
+    "localhost",
+    "mulberryfashion.store",
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://35.87.83.2",
     "http://mulberryfashion.store",
-    "https://mulberryfashion.store"
+    "https://mulberryfashion.store",
 ]
 
 # Application definition
@@ -154,7 +160,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Custom user model
 
 AUTH_USER_MODEL = "accounts.Account"
-
 
 # Email smtp setup
 
